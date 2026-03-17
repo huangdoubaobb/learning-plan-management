@@ -1,0 +1,1 @@
+const t=()=>{const r=localStorage.getItem("permissions");if(!r)return[];try{const s=JSON.parse(r);return Array.isArray(s)?s:[]}catch{return[]}},e=r=>{const s=Array.isArray(r)?r:[];localStorage.setItem("permissions",JSON.stringify(s))},n=r=>r?t().includes(r):!0;export{n as c,e as s};

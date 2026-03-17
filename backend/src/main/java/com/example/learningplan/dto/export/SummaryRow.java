@@ -1,0 +1,34 @@
+package com.example.learningplan.dto.export;
+
+import com.alibaba.excel.annotation.ExcelProperty;
+
+public class SummaryRow {
+    @ExcelProperty("指标")
+    private String label;
+
+    @ExcelProperty("数值")
+    private String value;
+
+    public SummaryRow() {}
+
+    public SummaryRow(String label, String value) {
+        this.label = label;
+        this.value = value;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+}

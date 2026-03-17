@@ -1,0 +1,266 @@
+2026-03-13 15:07:05.638 INFO  [background-preinit] o.h.validator.internal.util.Version - HV000001: Hibernate Validator 6.2.5.Final
+2026-03-13 15:07:05.641 INFO  [main] c.e.l.LearningPlanApplication - Starting LearningPlanApplication using Java 1.8.0_151 on DESKTOP-MVT8DLU with PID 36084 (D:\workspace\learning-plan-management\backend\target\classes started by lvh in D:\workspace\learning-plan-management)
+2026-03-13 15:07:05.642 INFO  [main] c.e.l.LearningPlanApplication - No active profile set, falling back to 1 default profile: "default"
+2026-03-13 15:07:06.369 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-13 15:07:06.464 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 85 ms. Found 11 JPA repository interfaces.
+2026-03-13 15:07:06.987 INFO  [main] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2026-03-13 15:07:06.995 INFO  [main] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-03-13 15:07:06.996 INFO  [main] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-13 15:07:06.996 INFO  [main] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.83]
+2026-03-13 15:07:07.186 INFO  [main] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-03-13 15:07:07.186 INFO  [main] o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1503 ms
+2026-03-13 15:07:07.329 INFO  [main] o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-13 15:07:07.385 INFO  [main] org.hibernate.Version - HHH000412: Hibernate ORM core version 5.6.15.Final
+2026-03-13 15:07:07.540 INFO  [main] o.h.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2026-03-13 15:07:07.644 INFO  [main] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-13 15:07:08.381 INFO  [main] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-13 15:07:08.405 INFO  [main] org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
+2026-03-13 15:07:09.404 INFO  [main] o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2026-03-13 15:07:09.414 INFO  [main] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-13 15:07:10.808 INFO  [main] o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@c7cbc2d, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@36ae17ef, org.springframework.security.web.context.SecurityContextPersistenceFilter@596d17f4, org.springframework.security.web.header.HeaderWriterFilter@2165d4ab, org.springframework.web.filter.CorsFilter@3f919230, org.springframework.security.web.authentication.logout.LogoutFilter@39a03ccc, com.example.learningplan.config.JwtAuthFilter@453e1bba, com.example.learningplan.config.OpLogFilter@6b338591, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@18ab513d, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@5e8a678a, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@48d14ea0, org.springframework.security.web.session.SessionManagementFilter@2389f546, org.springframework.security.web.access.ExceptionTranslationFilter@7a023e34, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@5a08d301]
+2026-03-13 15:07:11.190 INFO  [main] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-03-13 15:07:11.208 INFO  [main] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2026-03-13 15:07:11.218 INFO  [main] c.e.l.LearningPlanApplication - Started LearningPlanApplication in 6.134 seconds (JVM running for 7.453)
+2026-03-13 15:08:30.311 INFO  [http-nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-13 15:08:30.311 INFO  [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-13 15:08:30.313 INFO  [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2026-03-13 15:11:11.499 INFO  [background-preinit] o.h.validator.internal.util.Version - HV000001: Hibernate Validator 6.2.5.Final
+2026-03-13 15:11:11.502 INFO  [main] c.e.l.LearningPlanApplication - Starting LearningPlanApplication using Java 1.8.0_151 on DESKTOP-MVT8DLU with PID 24564 (D:\workspace\learning-plan-management\backend\target\classes started by lvh in D:\workspace\learning-plan-management)
+2026-03-13 15:11:11.503 INFO  [main] c.e.l.LearningPlanApplication - No active profile set, falling back to 1 default profile: "default"
+2026-03-13 15:11:12.265 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-13 15:11:12.355 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 81 ms. Found 11 JPA repository interfaces.
+2026-03-13 15:11:12.943 INFO  [main] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2026-03-13 15:11:12.949 INFO  [main] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-03-13 15:11:12.950 INFO  [main] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-13 15:11:12.951 INFO  [main] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.83]
+2026-03-13 15:11:13.156 INFO  [main] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-03-13 15:11:13.156 INFO  [main] o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1605 ms
+2026-03-13 15:11:13.288 INFO  [main] o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-13 15:11:13.335 INFO  [main] org.hibernate.Version - HHH000412: Hibernate ORM core version 5.6.15.Final
+2026-03-13 15:11:13.495 INFO  [main] o.h.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2026-03-13 15:11:13.607 INFO  [main] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-13 15:11:14.354 INFO  [main] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-13 15:11:14.376 INFO  [main] org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
+2026-03-13 15:11:15.284 INFO  [main] o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2026-03-13 15:11:15.295 INFO  [main] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-13 15:11:16.638 INFO  [main] o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@7ec176da, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@33d2f9d3, org.springframework.security.web.context.SecurityContextPersistenceFilter@55a2f08b, org.springframework.security.web.header.HeaderWriterFilter@7b55f0a6, org.springframework.web.filter.CorsFilter@677d4cea, org.springframework.security.web.authentication.logout.LogoutFilter@6b60d99c, com.example.learningplan.config.JwtAuthFilter@61555218, com.example.learningplan.config.OpLogFilter@6af29394, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@32084a01, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@66d73e2d, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@55ff64fd, org.springframework.security.web.session.SessionManagementFilter@6b64921f, org.springframework.security.web.access.ExceptionTranslationFilter@1d6dc2b8, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@508abc74]
+2026-03-13 15:11:17.028 INFO  [main] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-03-13 15:11:17.046 INFO  [main] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2026-03-13 15:11:17.055 INFO  [main] c.e.l.LearningPlanApplication - Started LearningPlanApplication in 6.206 seconds (JVM running for 7.646)
+2026-03-13 15:11:46.868 INFO  [http-nio-8080-exec-3] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-13 15:11:46.870 INFO  [http-nio-8080-exec-3] o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-13 15:11:46.878 INFO  [http-nio-8080-exec-3] o.s.web.servlet.DispatcherServlet - Completed initialization in 7 ms
+2026-03-13 15:20:39.438 INFO  [SpringApplicationShutdownHook] o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-13 15:20:39.441 INFO  [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-13 15:20:39.448 INFO  [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-03-13 15:25:26.643 INFO  [background-preinit] o.h.validator.internal.util.Version - HV000001: Hibernate Validator 6.2.5.Final
+2026-03-13 15:25:26.645 INFO  [main] c.e.l.LearningPlanApplication - Starting LearningPlanApplication using Java 1.8.0_151 on DESKTOP-MVT8DLU with PID 6992 (D:\workspace\learning-plan-management\backend\target\classes started by lvh in D:\workspace\learning-plan-management)
+2026-03-13 15:25:26.647 INFO  [main] c.e.l.LearningPlanApplication - No active profile set, falling back to 1 default profile: "default"
+2026-03-13 15:25:27.501 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-13 15:25:27.595 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 82 ms. Found 11 JPA repository interfaces.
+2026-03-13 15:25:28.378 INFO  [main] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2026-03-13 15:25:28.387 INFO  [main] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-03-13 15:25:28.389 INFO  [main] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-13 15:25:28.389 INFO  [main] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.83]
+2026-03-13 15:25:28.627 INFO  [main] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-03-13 15:25:28.627 INFO  [main] o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1935 ms
+2026-03-13 15:25:28.812 INFO  [main] o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-13 15:25:28.898 INFO  [main] org.hibernate.Version - HHH000412: Hibernate ORM core version 5.6.15.Final
+2026-03-13 15:25:29.112 INFO  [main] o.h.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2026-03-13 15:25:29.305 INFO  [main] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-13 15:25:30.261 INFO  [main] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-13 15:25:30.286 INFO  [main] org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
+2026-03-13 15:25:31.324 INFO  [main] o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2026-03-13 15:25:31.340 INFO  [main] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-13 15:25:32.919 INFO  [main] o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@6ba02f70, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@2e88ad38, org.springframework.security.web.context.SecurityContextPersistenceFilter@a7fd77f, org.springframework.security.web.header.HeaderWriterFilter@3a574a3b, org.springframework.web.filter.CorsFilter@2148849f, org.springframework.security.web.authentication.logout.LogoutFilter@62977afb, com.example.learningplan.config.JwtAuthFilter@63d9e1a, com.example.learningplan.config.OpLogFilter@3ff3275b, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@3006aef5, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@16257f8c, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@9771c71, org.springframework.security.web.session.SessionManagementFilter@6344004d, org.springframework.security.web.access.ExceptionTranslationFilter@22a2e581, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@b1f36e5]
+2026-03-13 15:25:33.570 INFO  [main] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-03-13 15:25:33.591 INFO  [main] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2026-03-13 15:25:33.601 INFO  [main] c.e.l.LearningPlanApplication - Started LearningPlanApplication in 7.586 seconds (JVM running for 9.102)
+2026-03-13 15:39:58.659 INFO  [SpringApplicationShutdownHook] o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-13 15:39:58.701 INFO  [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-13 15:39:58.768 INFO  [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-03-13 15:42:44.543 INFO  [background-preinit] o.h.validator.internal.util.Version - HV000001: Hibernate Validator 6.2.5.Final
+2026-03-13 15:42:44.555 INFO  [main] c.e.l.LearningPlanApplication - Starting LearningPlanApplication using Java 1.8.0_151 on DESKTOP-MVT8DLU with PID 22600 (D:\workspace\learning-plan-management\backend\target\classes started by lvh in D:\workspace\learning-plan-management)
+2026-03-13 15:42:44.555 INFO  [main] c.e.l.LearningPlanApplication - No active profile set, falling back to 1 default profile: "default"
+2026-03-13 15:42:45.454 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-13 15:42:45.553 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 87 ms. Found 11 JPA repository interfaces.
+2026-03-13 15:42:46.186 INFO  [main] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2026-03-13 15:42:46.194 INFO  [main] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-03-13 15:42:46.196 INFO  [main] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-13 15:42:46.196 INFO  [main] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.83]
+2026-03-13 15:42:46.409 INFO  [main] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-03-13 15:42:46.410 INFO  [main] o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1809 ms
+2026-03-13 15:42:46.576 INFO  [main] o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-13 15:42:46.648 INFO  [main] org.hibernate.Version - HHH000412: Hibernate ORM core version 5.6.15.Final
+2026-03-13 15:42:46.839 INFO  [main] o.h.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2026-03-13 15:42:47.016 INFO  [main] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-13 15:42:48.419 INFO  [main] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-13 15:42:48.450 INFO  [main] org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
+2026-03-13 15:42:49.979 INFO  [main] o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2026-03-13 15:42:49.993 INFO  [main] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-13 15:42:52.356 INFO  [main] o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@5af1b221, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@40b958c5, org.springframework.security.web.context.SecurityContextPersistenceFilter@594fcb22, org.springframework.security.web.header.HeaderWriterFilter@21202507, org.springframework.web.filter.CorsFilter@7d49fe37, org.springframework.security.web.authentication.logout.LogoutFilter@11678469, com.example.learningplan.config.JwtAuthFilter@63af52a6, com.example.learningplan.config.OpLogFilter@3331800f, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@41c83af0, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@47d4468a, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@74ab8610, org.springframework.security.web.session.SessionManagementFilter@4d10f182, org.springframework.security.web.access.ExceptionTranslationFilter@38f569d, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@4ef10d3b]
+2026-03-13 15:42:53.140 INFO  [main] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-03-13 15:42:53.189 INFO  [main] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2026-03-13 15:42:53.200 INFO  [main] c.e.l.LearningPlanApplication - Started LearningPlanApplication in 9.255 seconds (JVM running for 10.879)
+2026-03-13 15:43:09.270 INFO  [http-nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-13 15:43:09.270 INFO  [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-13 15:43:09.271 INFO  [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-03-13 15:50:48.419 INFO  [SpringApplicationShutdownHook] o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-13 15:50:48.425 INFO  [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-13 15:50:48.433 INFO  [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-03-13 19:39:02.671 INFO  [main] c.e.l.LearningPlanApplication - Starting LearningPlanApplication using Java 1.8.0_151 on DESKTOP-MVT8DLU with PID 3232 (D:\workspace\learning-plan-management\backend\target\classes started by lvh in D:\workspace\learning-plan-management)
+2026-03-13 19:39:02.679 INFO  [main] c.e.l.LearningPlanApplication - No active profile set, falling back to 1 default profile: "default"
+2026-03-13 19:39:02.736 INFO  [background-preinit] o.h.validator.internal.util.Version - HV000001: Hibernate Validator 6.2.5.Final
+2026-03-13 19:39:04.676 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-13 19:39:04.812 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 121 ms. Found 11 JPA repository interfaces.
+2026-03-13 19:39:05.991 INFO  [main] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2026-03-13 19:39:06.014 INFO  [main] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-03-13 19:39:06.016 INFO  [main] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-13 19:39:06.017 INFO  [main] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.83]
+2026-03-13 19:39:06.383 INFO  [main] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-03-13 19:39:06.384 INFO  [main] o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3534 ms
+2026-03-13 19:39:06.606 INFO  [main] o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-13 19:39:06.706 INFO  [main] org.hibernate.Version - HHH000412: Hibernate ORM core version 5.6.15.Final
+2026-03-13 19:39:07.061 INFO  [main] o.h.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2026-03-13 19:39:07.279 INFO  [main] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-13 19:39:08.835 INFO  [main] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-13 19:39:08.867 INFO  [main] org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
+2026-03-13 19:39:10.821 INFO  [main] o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2026-03-13 19:39:10.837 INFO  [main] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-13 19:39:13.601 INFO  [main] o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@34d26a68, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@fef2768, org.springframework.security.web.context.SecurityContextPersistenceFilter@729d1428, org.springframework.security.web.header.HeaderWriterFilter@2686a801, org.springframework.web.filter.CorsFilter@3a574a3b, org.springframework.security.web.authentication.logout.LogoutFilter@2ba4b32b, com.example.learningplan.config.JwtAuthFilter@4d1b4fa1, com.example.learningplan.config.OpLogFilter@37b1218, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@1728d307, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@252d2ac0, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@733e3c19, org.springframework.security.web.session.SessionManagementFilter@296949c8, org.springframework.security.web.access.ExceptionTranslationFilter@414d466e, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@4b5ceb5d]
+2026-03-13 19:39:14.404 INFO  [main] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-03-13 19:39:14.461 INFO  [main] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2026-03-13 19:39:14.473 INFO  [main] c.e.l.LearningPlanApplication - Started LearningPlanApplication in 12.977 seconds (JVM running for 15.039)
+2026-03-13 19:39:20.289 INFO  [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-13 19:39:20.291 INFO  [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-13 19:39:20.295 INFO  [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet - Completed initialization in 3 ms
+2026-03-13 19:43:26.116 INFO  [background-preinit] o.h.validator.internal.util.Version - HV000001: Hibernate Validator 6.2.5.Final
+2026-03-13 19:43:26.117 INFO  [main] c.e.l.LearningPlanApplication - Starting LearningPlanApplication using Java 1.8.0_151 on DESKTOP-MVT8DLU with PID 22620 (D:\workspace\learning-plan-management\backend\target\classes started by lvh in D:\workspace\learning-plan-management)
+2026-03-13 19:43:26.119 INFO  [main] c.e.l.LearningPlanApplication - No active profile set, falling back to 1 default profile: "default"
+2026-03-13 19:43:27.773 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-13 19:43:28.085 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 294 ms. Found 11 JPA repository interfaces.
+2026-03-13 19:43:29.138 INFO  [main] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2026-03-13 19:43:29.150 INFO  [main] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-03-13 19:43:29.151 INFO  [main] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-13 19:43:29.152 INFO  [main] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.83]
+2026-03-13 19:43:29.528 INFO  [main] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-03-13 19:43:29.531 INFO  [main] o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3332 ms
+2026-03-13 19:43:29.718 INFO  [main] o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-13 19:43:29.817 INFO  [main] org.hibernate.Version - HHH000412: Hibernate ORM core version 5.6.15.Final
+2026-03-13 19:43:30.336 INFO  [main] o.h.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2026-03-13 19:43:30.579 INFO  [main] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-13 19:43:33.523 INFO  [main] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-13 19:43:33.562 INFO  [main] org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
+2026-03-13 19:43:34.989 INFO  [main] o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2026-03-13 19:43:35.004 INFO  [main] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-13 19:43:36.848 INFO  [main] o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@639bf405, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@eda7dd3, org.springframework.security.web.context.SecurityContextPersistenceFilter@64245ca9, org.springframework.security.web.header.HeaderWriterFilter@64745270, org.springframework.web.filter.CorsFilter@9d7a853, org.springframework.security.web.authentication.logout.LogoutFilter@39a1e1e6, com.example.learningplan.config.JwtAuthFilter@7f49df25, com.example.learningplan.config.OpLogFilter@464abed, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@256d8f17, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@2319c1e0, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@71c69628, org.springframework.security.web.session.SessionManagementFilter@1512efe9, org.springframework.security.web.access.ExceptionTranslationFilter@6a0aa5e2, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@75b25ec3]
+2026-03-13 19:43:37.398 INFO  [main] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-03-13 19:43:37.434 INFO  [main] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2026-03-13 19:43:37.449 INFO  [main] c.e.l.LearningPlanApplication - Started LearningPlanApplication in 12.382 seconds (JVM running for 15.187)
+2026-03-13 19:43:48.463 INFO  [http-nio-8080-exec-3] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-13 19:43:48.463 INFO  [http-nio-8080-exec-3] o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-13 19:43:48.464 INFO  [http-nio-8080-exec-3] o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-03-13 19:58:07.211 INFO  [background-preinit] o.h.validator.internal.util.Version - HV000001: Hibernate Validator 6.2.5.Final
+2026-03-13 19:58:07.186 INFO  [main] c.e.l.LearningPlanApplication - Starting LearningPlanApplication using Java 1.8.0_151 on DESKTOP-MVT8DLU with PID 15284 (D:\workspace\learning-plan-management\backend\target\classes started by lvh in D:\workspace\learning-plan-management)
+2026-03-13 19:58:07.213 INFO  [main] c.e.l.LearningPlanApplication - No active profile set, falling back to 1 default profile: "default"
+2026-03-13 19:58:08.447 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-13 19:58:08.628 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 168 ms. Found 11 JPA repository interfaces.
+2026-03-13 19:58:09.804 INFO  [main] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2026-03-13 19:58:09.813 INFO  [main] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-03-13 19:58:09.815 INFO  [main] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-13 19:58:09.816 INFO  [main] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.83]
+2026-03-13 19:58:10.123 INFO  [main] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-03-13 19:58:10.124 INFO  [main] o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2839 ms
+2026-03-13 19:58:10.293 INFO  [main] o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-13 19:58:10.377 INFO  [main] org.hibernate.Version - HHH000412: Hibernate ORM core version 5.6.15.Final
+2026-03-13 19:58:10.655 INFO  [main] o.h.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2026-03-13 19:58:10.829 INFO  [main] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-13 19:58:11.871 INFO  [main] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-13 19:58:11.896 INFO  [main] org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
+2026-03-13 19:58:13.216 INFO  [main] o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2026-03-13 19:58:13.232 INFO  [main] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-13 19:58:15.874 INFO  [main] o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@2566247d, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@363a09a2, org.springframework.security.web.context.SecurityContextPersistenceFilter@3ef7fb04, org.springframework.security.web.header.HeaderWriterFilter@6a906078, org.springframework.web.filter.CorsFilter@63d14dbf, org.springframework.security.web.authentication.logout.LogoutFilter@6b6fde93, com.example.learningplan.config.JwtAuthFilter@7022fb5c, com.example.learningplan.config.OpLogFilter@7e366c6f, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@2d4f1ddd, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@5b4880b3, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@67521a79, org.springframework.security.web.session.SessionManagementFilter@3a6409ec, org.springframework.security.web.access.ExceptionTranslationFilter@b4c89b6, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@5e8a678a]
+2026-03-13 19:58:16.399 INFO  [main] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-03-13 19:58:16.429 INFO  [main] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2026-03-13 19:58:16.439 INFO  [main] c.e.l.LearningPlanApplication - Started LearningPlanApplication in 9.951 seconds (JVM running for 11.818)
+2026-03-13 19:58:59.953 INFO  [http-nio-8080-exec-3] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-13 19:58:59.953 INFO  [http-nio-8080-exec-3] o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-13 19:58:59.954 INFO  [http-nio-8080-exec-3] o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-03-13 20:17:00.527 INFO  [background-preinit] o.h.validator.internal.util.Version - HV000001: Hibernate Validator 6.2.5.Final
+2026-03-13 20:17:00.533 INFO  [main] c.e.l.LearningPlanApplication - Starting LearningPlanApplication using Java 1.8.0_151 on DESKTOP-MVT8DLU with PID 17524 (D:\workspace\learning-plan-management\backend\target\classes started by lvh in D:\workspace\learning-plan-management)
+2026-03-13 20:17:00.533 INFO  [main] c.e.l.LearningPlanApplication - No active profile set, falling back to 1 default profile: "default"
+2026-03-13 20:17:01.474 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-13 20:17:01.579 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 94 ms. Found 11 JPA repository interfaces.
+2026-03-13 20:17:02.319 INFO  [main] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2026-03-13 20:17:02.327 INFO  [main] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-03-13 20:17:02.330 INFO  [main] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-13 20:17:02.330 INFO  [main] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.83]
+2026-03-13 20:17:02.566 INFO  [main] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-03-13 20:17:02.567 INFO  [main] o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1985 ms
+2026-03-13 20:17:02.733 INFO  [main] o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-13 20:17:02.818 INFO  [main] org.hibernate.Version - HHH000412: Hibernate ORM core version 5.6.15.Final
+2026-03-13 20:17:03.047 INFO  [main] o.h.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2026-03-13 20:17:03.210 INFO  [main] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-13 20:17:04.144 INFO  [main] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-13 20:17:04.184 INFO  [main] org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
+2026-03-13 20:17:05.507 INFO  [main] o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2026-03-13 20:17:05.519 INFO  [main] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-13 20:17:07.193 INFO  [main] o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@3a720ae3, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@1fe37d27, org.springframework.security.web.context.SecurityContextPersistenceFilter@c3a1d7f, org.springframework.security.web.header.HeaderWriterFilter@3180131e, org.springframework.web.filter.CorsFilter@1718de70, org.springframework.security.web.authentication.logout.LogoutFilter@363a09a2, com.example.learningplan.config.JwtAuthFilter@eee26bd, com.example.learningplan.config.OpLogFilter@7e7987b8, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@2111d7b9, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@7a023e34, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@6bfc5296, org.springframework.security.web.session.SessionManagementFilter@8cce9ad, org.springframework.security.web.access.ExceptionTranslationFilter@485547ac, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@7b55f0a6]
+2026-03-13 20:17:07.672 INFO  [main] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-03-13 20:17:07.692 INFO  [main] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2026-03-13 20:17:07.701 INFO  [main] c.e.l.LearningPlanApplication - Started LearningPlanApplication in 7.996 seconds (JVM running for 10.907)
+2026-03-13 20:17:14.996 INFO  [http-nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-13 20:17:14.996 INFO  [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-13 20:17:14.998 INFO  [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2026-03-13 21:54:41.925 INFO  [background-preinit] o.h.validator.internal.util.Version - HV000001: Hibernate Validator 6.2.5.Final
+2026-03-13 21:54:41.941 INFO  [main] c.e.l.LearningPlanApplication - Starting LearningPlanApplication using Java 1.8.0_151 on DESKTOP-MVT8DLU with PID 36844 (D:\workspace\learning-plan-management\backend\target\classes started by lvh in D:\workspace\learning-plan-management)
+2026-03-13 21:54:41.943 INFO  [main] c.e.l.LearningPlanApplication - No active profile set, falling back to 1 default profile: "default"
+2026-03-13 21:54:42.996 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-13 21:54:43.123 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 112 ms. Found 11 JPA repository interfaces.
+2026-03-13 21:54:43.938 INFO  [main] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2026-03-13 21:54:43.949 INFO  [main] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-03-13 21:54:43.951 INFO  [main] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-13 21:54:43.951 INFO  [main] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.83]
+2026-03-13 21:54:44.222 INFO  [main] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-03-13 21:54:44.222 INFO  [main] o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2183 ms
+2026-03-13 21:54:44.405 INFO  [main] o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-13 21:54:44.496 INFO  [main] org.hibernate.Version - HHH000412: Hibernate ORM core version 5.6.15.Final
+2026-03-13 21:54:44.759 INFO  [main] o.h.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2026-03-13 21:54:44.937 INFO  [main] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-13 21:54:45.947 INFO  [main] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-13 21:54:45.975 INFO  [main] org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
+2026-03-13 21:54:47.237 INFO  [main] o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2026-03-13 21:54:47.250 INFO  [main] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-13 21:54:48.841 INFO  [main] o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@5ef48b08, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@7a1878d, org.springframework.security.web.context.SecurityContextPersistenceFilter@7be86438, org.springframework.security.web.header.HeaderWriterFilter@62158618, org.springframework.web.filter.CorsFilter@2b625e82, org.springframework.security.web.authentication.logout.LogoutFilter@151f1734, com.example.learningplan.config.JwtAuthFilter@1ddb6abb, com.example.learningplan.config.OpLogFilter@48a21ea6, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@6a906078, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@fd5c7f6, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@22657db1, org.springframework.security.web.session.SessionManagementFilter@4936fbc6, org.springframework.security.web.access.ExceptionTranslationFilter@a7fd77f, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@7f9b851c]
+2026-03-13 21:54:49.352 INFO  [main] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-03-13 21:54:49.376 INFO  [main] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2026-03-13 21:54:49.386 INFO  [main] c.e.l.LearningPlanApplication - Started LearningPlanApplication in 8.57 seconds (JVM running for 10.657)
+2026-03-13 21:58:32.185 INFO  [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-13 21:58:32.186 INFO  [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-13 21:58:32.187 INFO  [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-03-13 22:36:38.959 INFO  [background-preinit] o.h.validator.internal.util.Version - HV000001: Hibernate Validator 6.2.5.Final
+2026-03-13 22:36:38.961 INFO  [main] c.e.l.LearningPlanApplication - Starting LearningPlanApplication using Java 1.8.0_151 on DESKTOP-MVT8DLU with PID 36996 (D:\workspace\learning-plan-management\backend\target\classes started by lvh in D:\workspace\learning-plan-management)
+2026-03-13 22:36:38.962 INFO  [main] c.e.l.LearningPlanApplication - No active profile set, falling back to 1 default profile: "default"
+2026-03-13 22:36:39.781 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-13 22:36:39.901 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 107 ms. Found 11 JPA repository interfaces.
+2026-03-13 22:36:40.694 INFO  [main] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2026-03-13 22:36:40.704 INFO  [main] o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-03-13 22:36:40.705 INFO  [main] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-13 22:36:40.706 INFO  [main] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.83]
+2026-03-13 22:36:40.932 INFO  [main] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-03-13 22:36:40.933 INFO  [main] o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1914 ms
+2026-03-13 22:36:41.108 INFO  [main] o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-13 22:36:41.198 INFO  [main] org.hibernate.Version - HHH000412: Hibernate ORM core version 5.6.15.Final
+2026-03-13 22:36:41.400 INFO  [main] o.h.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2026-03-13 22:36:41.553 INFO  [main] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-13 22:36:42.387 INFO  [main] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-13 22:36:42.412 INFO  [main] org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
+2026-03-13 22:36:43.520 INFO  [main] o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2026-03-13 22:36:43.533 INFO  [main] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-13 22:36:44.870 INFO  [main] o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@e21d73, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@7a482b3a, org.springframework.security.web.context.SecurityContextPersistenceFilter@1ccce165, org.springframework.security.web.header.HeaderWriterFilter@5b4880b3, org.springframework.web.filter.CorsFilter@600b3bee, org.springframework.security.web.authentication.logout.LogoutFilter@7343d843, com.example.learningplan.config.JwtAuthFilter@1cf4d454, com.example.learningplan.config.OpLogFilter@6a262980, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@2926f7bd, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@5a20f793, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@129348e8, org.springframework.security.web.session.SessionManagementFilter@18d09283, org.springframework.security.web.access.ExceptionTranslationFilter@32b8992e, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@7b9b6a56]
+2026-03-13 22:36:45.501 INFO  [main] o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-03-13 22:36:45.522 INFO  [main] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2026-03-13 22:36:45.530 INFO  [main] c.e.l.LearningPlanApplication - Started LearningPlanApplication in 7.401 seconds (JVM running for 10.283)
+2026-03-13 22:36:52.543 INFO  [http-nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-13 22:36:52.543 INFO  [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-13 22:36:52.544 INFO  [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
