@@ -127,7 +127,8 @@
               <th>状态</th>
               <th>完成时间</th>
               <th>备注</th>
-              <th>图片</th>
+              <th>任务图片</th>
+              <th>完成图片</th>
               <th>操作</th>
             </tr>
           </thead>
@@ -143,13 +144,25 @@
               <td>{{ formatDateTime(task.completedAt) }}</td>
               <td>{{ task.checkinNote || '-' }}</td>
               <td>
-                <div class="image-thumbs" v-if="task.images && task.images.length">
+                <div class="image-thumbs" v-if="taskImageList(task).length">
                   <img
-                    v-for="(img, idx) in task.images"
+                    v-for="(img, idx) in taskImageList(task)"
                     :key="img + idx"
                     :src="resolveImageUrl(img)"
                     class="thumb"
-                    @click="openImagePreview(task.images, idx)"
+                    @click="openImagePreview(taskImageList(task), idx)"
+                  />
+                </div>
+                <span v-else class="notice">-</span>
+              </td>
+              <td>
+                <div class="image-thumbs" v-if="checkinImageList(task).length">
+                  <img
+                    v-for="(img, idx) in checkinImageList(task)"
+                    :key="img + idx"
+                    :src="resolveImageUrl(img)"
+                    class="thumb"
+                    @click="openImagePreview(checkinImageList(task), idx)"
                   />
                 </div>
                 <span v-else class="notice">-</span>
@@ -353,6 +366,16 @@ const loadAll = async () => {
 
 const childName = (id) => {
   return children.value.find(c => c.id === id)?.displayName || '-'
+}
+
+const taskImageList = (task) => {
+  if (Array.isArray(task?.taskImages) && task.taskImages.length) return task.taskImages
+  return Array.isArray(task?.images) ? task.images : []
+}
+
+const checkinImageList = (task) => {
+  if (Array.isArray(task?.checkinImages) && task.checkinImages.length) return task.checkinImages
+  return []
 }
 
 const statusLabel = (task) => {

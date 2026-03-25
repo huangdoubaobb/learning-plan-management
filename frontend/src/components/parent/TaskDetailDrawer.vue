@@ -39,15 +39,30 @@
           <span class="detail-value">{{ task?.checkinNote || '-' }}</span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">图片</span>
+          <span class="detail-label">任务图片</span>
           <div class="detail-images">
-            <div class="image-thumbs" v-if="task?.images?.length">
+            <div class="image-thumbs" v-if="taskImageList.length">
               <img
-                v-for="(img, idx) in task.images"
+                v-for="(img, idx) in taskImageList"
                 :key="`${img}-${idx}`"
                 :src="resolveImageUrl(img)"
                 class="thumb"
-                @click="$emit('preview-images', task.images, idx)"
+                @click="$emit('preview-images', taskImageList, idx)"
+              />
+            </div>
+            <span v-else class="notice">-</span>
+          </div>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">完成图片</span>
+          <div class="detail-images">
+            <div class="image-thumbs" v-if="checkinImageList.length">
+              <img
+                v-for="(img, idx) in checkinImageList"
+                :key="`${img}-${idx}`"
+                :src="resolveImageUrl(img)"
+                class="thumb"
+                @click="$emit('preview-images', checkinImageList, idx)"
               />
             </div>
             <span v-else class="notice">-</span>
@@ -62,9 +77,10 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import VeaButton from '../VeaButton.vue'
 
-defineProps({
+const props = defineProps({
   visible: { type: Boolean, default: false },
   task: { type: Object, default: null },
   childName: { type: Function, required: true },
@@ -74,6 +90,16 @@ defineProps({
 })
 
 defineEmits(['close', 'preview-images'])
+
+const taskImageList = computed(() => {
+  if (Array.isArray(props.task?.taskImages) && props.task.taskImages.length) return props.task.taskImages
+  return Array.isArray(props.task?.images) ? props.task.images : []
+})
+
+const checkinImageList = computed(() => {
+  if (Array.isArray(props.task?.checkinImages) && props.task.checkinImages.length) return props.task.checkinImages
+  return []
+})
 </script>
 
 <style scoped>
