@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="container">
     <div class="header">
       <div>
@@ -31,15 +31,25 @@
             <el-select v-model="filters.roleCode" class="role-filter-select" clearable placeholder="全部角色" style="width: 160px;">
               <el-option v-for="role in roles" :key="role.code" :label="role.name" :value="role.code" />
             </el-select>
-            <span class="filter-label">日期：</span>
+            <span class="filter-label">开始：</span>
             <el-date-picker
-              v-model="filters.dateRange"
-              type="daterange"
-              range-separator="至"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
+              v-model="filters.startDate"
+              type="date"
               value-format="YYYY-MM-DD"
-              style="width: 260px;"
+              placeholder="开始日期"
+              clearable
+              :disabled-date="disableStartDate"
+              style="width: 150px;"
+            />
+            <span class="filter-label">结束：</span>
+            <el-date-picker
+              v-model="filters.endDate"
+              type="date"
+              value-format="YYYY-MM-DD"
+              placeholder="结束日期"
+              clearable
+              :disabled-date="disableEndDate"
+              style="width: 150px;"
             />
           </div>
           <div class="vea-toolbar-right">
@@ -130,7 +140,7 @@
           <div class="drawer-title">{{ formMode === 'create' ? '新增用户' : '编辑用户' }}</div>
           <VeaButton text @click="closeModal">关闭</VeaButton>
         </div>
-          <div class="drawer-body">
+        <div class="drawer-body">
           <el-form label-width="80px">
             <el-form-item label="用户名">
               <el-input v-model="form.username" :disabled="formMode === 'edit'" placeholder="用户名" />
@@ -139,7 +149,7 @@
               <el-input v-model="form.displayName" placeholder="显示名" />
             </el-form-item>
             <el-form-item label="密码">
-              <el-input v-model="form.password" placeholder="密码（编辑时留空不改）" type="password" />
+              <el-input v-model="form.password" placeholder="密码，编辑时留空则不修改" type="password" />
             </el-form-item>
             <el-form-item label="角色">
               <el-select v-model="form.roleCode" placeholder="选择角色">
@@ -175,19 +185,31 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '../api'
 import { can } from '../permissions'
 import VeaButton from '../components/VeaButton.vue'
+import { downloadCsv, formatDateTime } from '../utils'
 
 const users = ref([])
 const roles = ref([])
 const filters = ref({
   keyword: '',
   roleCode: '',
-  dateRange: []
+  startDate: '',
+  endDate: ''
 })
 const formMode = ref('create')
 const showUserModal = ref(false)
 const pageSize = ref(10)
 const currentPage = ref(1)
 const selectedUserIds = ref([])
+
+const disableStartDate = (date) => {
+  if (!filters.value.endDate) return false
+  return date.getTime() > new Date(filters.value.endDate).getTime()
+}
+
+const disableEndDate = (date) => {
+  if (!filters.value.startDate) return false
+  return date.getTime() < new Date(filters.value.startDate).getTime()
+}
 
 const pageUserIds = computed(() => pagedUsers.value.map(u => u.id))
 const pageSelectedCount = computed(() => pageUserIds.value.filter(id => selectedUserIds.value.includes(id)).length)
@@ -203,6 +225,7 @@ const toggleSelectAll = (val) => {
   }
   selectedUserIds.value = Array.from(set)
 }
+
 const form = reactive({
   id: null,
   username: '',
@@ -213,14 +236,20 @@ const form = reactive({
   enabled: true
 })
 
+const syncSelectedUsers = () => {
+  const validIds = new Set(filteredUsers.value.map(user => user.id))
+  selectedUserIds.value = selectedUserIds.value.filter(id => validIds.has(id))
+}
+
 const loadAll = async () => {
   const params = {}
-  const [startDate, endDate] = filters.value.dateRange || []
+  const { startDate, endDate } = filters.value
   if (startDate) params.startDate = startDate
   if (endDate) params.endDate = endDate
   const { data } = await api.get('/admin/users', { params })
   users.value = data || []
   clampPage()
+  syncSelectedUsers()
 }
 
 const loadRoles = async () => {
@@ -373,7 +402,6 @@ const filteredUsers = computed(() => {
   return list
 })
 
-const totalPages = computed(() => Math.max(1, Math.ceil(filteredUsers.value.length / pageSize.value)))
 const pagedUsers = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value
   return filteredUsers.value.slice(start, start + pageSize.value)
@@ -388,6 +416,11 @@ watch([users, pageSize], () => {
   clampPage()
 })
 
+watch(filteredUsers, () => {
+  currentPage.value = 1
+  syncSelectedUsers()
+})
+
 onMounted(async () => {
   await loadRoles()
   await loadAll()
@@ -397,32 +430,71 @@ onMounted(async () => {
 const resetFilters = () => {
   filters.value.keyword = ''
   filters.value.roleCode = ''
-  filters.value.dateRange = []
+  filters.value.startDate = ''
+  filters.value.endDate = ''
   loadAll()
 }
 
 const exportUsers = async () => {
-  const header = '\u7528\u6237\u540d,\u663e\u793a\u540d,\u89d2\u8272,\u79ef\u5206,\u72b6\u6001,\u6700\u8fd1\u767b\u5f55'
+  const header = '用户名,显示名,角色,积分,状态,最近登录'
   const rows = filteredUsers.value.map(row => {
-    const status = row.enabled ? '\u542f\u7528' : '\u7981\u7528'
+    const status = row.enabled ? '启用' : '禁用'
     return `${row.username},${row.displayName},${row.role},${row.points},${status},${formatDateTime(row.lastLoginAt)}`
   })
-  const csv = [header, ...rows].join('\n')
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-  const link = document.createElement('a')
-  link.href = URL.createObjectURL(blob)
-  link.download = `users-${new Date().toISOString().slice(0, 10)}.csv`
-  link.click()
-  URL.revokeObjectURL(link.href)
+  downloadCsv([header, ...rows], `users-${new Date().toISOString().slice(0, 10)}.csv`)
+  ElMessage.success('导出成功')
 }
 
-const formatDateTime = (value) => {
-  if (!value) return '-'
-  return value.replace('T', ' ').slice(0, 16)
-}
 </script>
 
 <style scoped>
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 24, 31, 0.45);
+  z-index: 999;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.drawer-panel {
+  width: min(520px, 92vw);
+  height: 100vh;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  animation: drawerIn 0.25s ease both;
+}
+
+.drawer-header {
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(28, 27, 34, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.drawer-title {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.drawer-body {
+  padding: 16px 18px;
+  overflow: auto;
+  flex: 1;
+}
+
+.drawer-footer {
+  padding: 12px 18px 18px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid rgba(28, 27, 34, 0.08);
+}
+
 .drawer-form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -441,4 +513,14 @@ const formatDateTime = (value) => {
   font-weight: 600;
 }
 
+@keyframes drawerIn {
+  from {
+    transform: translateX(12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
 </style>

@@ -1,4 +1,5 @@
-﻿import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
+import { getRole, getToken } from './utils/authStorage'
 
 const Login = () => import('./pages/Login.vue')
 const HomeDashboard = () => import('./pages/HomeDashboard.vue')
@@ -8,7 +9,6 @@ const AdminUsers = () => import('./pages/AdminUsers.vue')
 const AdminLogs = () => import('./pages/AdminLogs.vue')
 const ParentChildren = () => import('./pages/ParentChildren.vue')
 const ParentTaskList = () => import('./pages/ParentTaskList.vue')
-const ParentTaskStats = () => import('./pages/ParentTaskStats.vue')
 const ParentRewardList = () => import('./pages/ParentRewardList.vue')
 const ParentRedemptions = () => import('./pages/ParentRedemptions.vue')
 const ParentReports = () => import('./pages/ParentReports.vue')
@@ -32,13 +32,13 @@ const routes = [
       { path: 'parent', redirect: '/parent/children' },
       { path: 'parent/children', component: ParentChildren, meta: { role: 'PARENT', title: '孩子管理' } },
       { path: 'parent/tasks', component: ParentTaskList, meta: { role: 'PARENT', title: '任务列表' } },
-      { path: 'parent/task-stats', component: ParentTaskStats, meta: { role: 'PARENT', title: '任务统计' } },
+      { path: 'parent/task-stats', redirect: '/parent/reports' },
       { path: 'parent/rewards', component: ParentRewardList, meta: { role: 'PARENT', title: '奖励管理' } },
       { path: 'parent/redemptions', component: ParentRedemptions, meta: { role: 'PARENT', title: '兑换审核' } },
       { path: 'parent/reports', component: ParentReports, meta: { role: 'PARENT', title: '报表统计' } },
       { path: 'child', redirect: '/child/tasks' },
-      { path: 'child/tasks', component: ChildTasks, meta: { role: 'CHILD', title: '今日任务' } },
-      { path: 'child/rewards', component: ChildRewards, meta: { role: 'CHILD', title: '兑换记录' } },
+      { path: 'child/tasks', component: ChildTasks, meta: { role: 'CHILD', title: '任务列表' } },
+      { path: 'child/rewards', component: ChildRewards, meta: { role: 'CHILD', title: '兑换奖励' } },
       { path: 'child/points', component: ChildPoints, meta: { role: 'CHILD', title: '积分明细' } }
     ]
   },
@@ -52,8 +52,8 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   if (to.meta?.public) return true
-  const token = localStorage.getItem('token')
-  const role = localStorage.getItem('role')
+  const token = getToken()
+  const role = getRole()
   if (!token) return '/login'
   if (to.path === '/') return '/home'
   if (to.meta?.role && role !== 'ADMIN' && to.meta.role !== role) return '/login'
@@ -62,12 +62,7 @@ router.beforeEach((to) => {
 
 router.afterEach((to) => {
   const baseTitle = '学习计划管理系统'
-  const pageTitle = to.meta?.title ? `${to.meta.title} - ${baseTitle}` : baseTitle
-  document.title = pageTitle
-  // Clean up stray overlays when switching roles/logging in
-  document.querySelectorAll('.drawer-backdrop, .el-overlay, .el-overlay-message-box').forEach((el) => el.remove())
-  document.body.classList.remove('el-popup-parent--hidden')
-  document.body.style.removeProperty('overflow')
+  document.title = to.meta?.title ? `${to.meta.title} - ${baseTitle}` : baseTitle
 })
 
 export default router

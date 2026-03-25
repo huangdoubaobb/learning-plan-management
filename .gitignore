@@ -1,0 +1,16 @@
+.idea/
+.tmp/
+.vscode/
+
+logs/
+uploads/
+
+backend/target/
+backend/logs/
+
+frontend/dist/
+frontend/node_modules/
+frontend/.npm-cache/
+
+*.log
+*.class

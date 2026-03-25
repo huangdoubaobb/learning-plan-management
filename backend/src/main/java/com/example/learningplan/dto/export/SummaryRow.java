@@ -3,10 +3,10 @@ package com.example.learningplan.dto.export;
 import com.alibaba.excel.annotation.ExcelProperty;
 
 public class SummaryRow {
-    @ExcelProperty("指标")
+    @ExcelProperty("Label")
     private String label;
 
-    @ExcelProperty("数值")
+    @ExcelProperty("Value")
     private String value;
 
     public SummaryRow() {}

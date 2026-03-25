@@ -1,4 +1,5 @@
 export * from './date'
+export * from './download'
 export * from './format'
+export * from './image'
 export * from './validation'
-export * from './storage'

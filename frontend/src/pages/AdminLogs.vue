@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="container">
     <div class="header">
       <div>
@@ -32,15 +32,25 @@
               <el-option label="400" :value="400" />
               <el-option label="500" :value="500" />
             </el-select>
-            <span class="filter-label">日期：</span>
+            <span class="filter-label">开始：</span>
             <el-date-picker
-              v-model="filters.dateRange"
-              type="daterange"
-              range-separator="至"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
+              v-model="filters.startDate"
+              type="date"
               value-format="YYYY-MM-DD"
-              style="width: 260px;"
+              placeholder="开始日期"
+              clearable
+              :disabled-date="disableStartDate"
+              style="width: 150px;"
+            />
+            <span class="filter-label">结束：</span>
+            <el-date-picker
+              v-model="filters.endDate"
+              type="date"
+              value-format="YYYY-MM-DD"
+              placeholder="结束日期"
+              clearable
+              :disabled-date="disableEndDate"
+              style="width: 150px;"
             />
           </div>
           <div class="vea-toolbar-right">
@@ -130,7 +140,7 @@
             <div class="value">{{ formatTime(selectedLog.createdAt) }}</div>
           </div>
           <div class="log-detail-item">
-            <div class="label">用户ID</div>
+            <div class="label">用户 ID</div>
             <div class="value">{{ selectedLog.userId ?? '-' }}</div>
           </div>
           <div class="log-detail-item">
@@ -192,21 +202,33 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { Search, Refresh, Tickets } from '@element-plus/icons-vue'
 import api from '../api'
 import VeaButton from '../components/VeaButton.vue'
+import { formatDateTimeSeconds } from '../utils'
 
 const logs = ref([])
 const filters = ref({
   keyword: '',
   status: '',
-  dateRange: []
+  startDate: '',
+  endDate: ''
 })
 const pageSize = ref(10)
 const currentPage = ref(1)
 const showDetail = ref(false)
 const selectedLog = ref(null)
 
+const disableStartDate = (date) => {
+  if (!filters.value.endDate) return false
+  return date.getTime() > new Date(filters.value.endDate).getTime()
+}
+
+const disableEndDate = (date) => {
+  if (!filters.value.startDate) return false
+  return date.getTime() < new Date(filters.value.startDate).getTime()
+}
+
 const loadAll = async () => {
   const params = {}
-  const [startDate, endDate] = filters.value.dateRange || []
+  const { startDate, endDate } = filters.value
   if (startDate) params.startDate = startDate
   if (endDate) params.endDate = endDate
   const { data } = await api.get('/admin/logs', { params })
@@ -248,15 +270,13 @@ watch([logs, pageSize], () => {
 const resetFilters = () => {
   filters.value.keyword = ''
   filters.value.status = ''
-  filters.value.dateRange = []
+  filters.value.startDate = ''
+  filters.value.endDate = ''
   loadAll()
 }
 
 const formatTime = (value) => {
-  if (!value) return '-'
-  const str = String(value)
-  if (str.includes('T')) return str.replace('T', ' ').slice(0, 19)
-  return str
+  return formatDateTimeSeconds(value)
 }
 
 const statusType = (status) => {
@@ -318,26 +338,30 @@ onMounted(loadAll)
 }
 
 .log-detail-item {
-  border: 1px solid rgba(28, 27, 34, 0.08);
+  padding: 12px;
   border-radius: 10px;
-  padding: 10px 12px;
-  background: #fff;
-  display: grid;
-  gap: 6px;
-}
-
-.log-detail-item .label {
-  font-size: 12px;
-  color: #606266;
-}
-
-.log-detail-item .value {
-  font-size: 13px;
-  color: #1f2328;
-  word-break: break-word;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
 }
 
 .log-detail-item.span-2 {
   grid-column: span 2;
+}
+
+.log-detail-item .label {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.log-detail-item .value {
+  font-size: 13px;
+  color: #0f172a;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+.mono {
+  font-family: Consolas, 'Courier New', monospace;
 }
 </style>

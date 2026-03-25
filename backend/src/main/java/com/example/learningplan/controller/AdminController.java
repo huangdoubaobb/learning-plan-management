@@ -17,24 +17,34 @@ import com.example.learningplan.repository.SysMenuRepository;
 import com.example.learningplan.repository.SysRoleMenuRepository;
 import com.example.learningplan.repository.SysUserRoleRepository;
 import com.example.learningplan.repository.UserRepository;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.transaction.Transactional;
+import javax.validation.Valid;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.transaction.Transactional;
-import javax.validation.Valid;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
+    private static final String RECORD_NOT_FOUND = "Record not found";
+    private static final String ROLE_NOT_FOUND = "Role not found";
+    private static final String USERNAME_EXISTS = "Username already exists";
+
     private final RoleRepository roleRepository;
     private final SysMenuRepository sysMenuRepository;
     private final SysRoleMenuRepository sysRoleMenuRepository;
@@ -44,8 +54,7 @@ public class AdminController {
 
     public AdminController(RoleRepository roleRepository, SysMenuRepository sysMenuRepository,
                            SysRoleMenuRepository sysRoleMenuRepository, UserRepository userRepository,
-                           SysUserRoleRepository sysUserRoleRepository,
-                           PasswordEncoder passwordEncoder) {
+                           SysUserRoleRepository sysUserRoleRepository, PasswordEncoder passwordEncoder) {
         this.roleRepository = roleRepository;
         this.sysMenuRepository = sysMenuRepository;
         this.sysRoleMenuRepository = sysRoleMenuRepository;
@@ -57,7 +66,7 @@ public class AdminController {
     @GetMapping("/roles")
     public List<RoleView> listRoles(@RequestParam(required = false) String startDate,
                                     @RequestParam(required = false) String endDate) {
-        DateRange range = DateRange.from(startDate, endDate);
+        ControllerDateRange range = ControllerDateRange.from(startDate, endDate);
         List<Role> roles = range == null
             ? roleRepository.findAll()
             : roleRepository.findByCreatedAtBetweenOrderByIdAsc(range.start, range.end);
@@ -81,7 +90,8 @@ public class AdminController {
 
     @PutMapping("/roles/{id}")
     public ResponseEntity<?> updateRole(@PathVariable Long id, @Valid @RequestBody RoleRequest request) {
-        Role role = roleRepository.findById(id).orElseThrow(() -> new IllegalStateException("Not found"));
+        Role role = roleRepository.findById(id)
+            .orElseThrow(() -> new IllegalStateException(RECORD_NOT_FOUND));
         role.setCode(request.getCode());
         role.setName(request.getName());
         roleRepository.save(role);
@@ -97,7 +107,7 @@ public class AdminController {
     @GetMapping("/permissions")
     public List<PermissionView> listPermissions(@RequestParam(required = false) String startDate,
                                                 @RequestParam(required = false) String endDate) {
-        DateRange range = DateRange.from(startDate, endDate);
+        ControllerDateRange range = ControllerDateRange.from(startDate, endDate);
         List<SysMenu> menus = range == null
             ? sysMenuRepository.findByPermissionIsNotNull()
             : sysMenuRepository.findByPermissionIsNotNullAndCreatedAtBetweenOrderBySortOrderAscIdAsc(range.start, range.end);
@@ -116,7 +126,8 @@ public class AdminController {
     @PutMapping("/roles/{id}/permissions")
     @Transactional
     public ResponseEntity<?> updateRolePermissions(@PathVariable Long id, @Valid @RequestBody RolePermissionsRequest request) {
-        Role role = roleRepository.findById(id).orElseThrow(() -> new IllegalStateException("Not found"));
+        Role role = roleRepository.findById(id)
+            .orElseThrow(() -> new IllegalStateException(RECORD_NOT_FOUND));
         sysRoleMenuRepository.deleteByRoleId(role.getId());
         if (request.getPermissionIds() != null) {
             for (Long menuId : request.getPermissionIds()) {
@@ -129,7 +140,7 @@ public class AdminController {
     @GetMapping("/users")
     public List<UserView> listUsers(@RequestParam(required = false) String startDate,
                                     @RequestParam(required = false) String endDate) {
-        DateRange range = DateRange.from(startDate, endDate);
+        ControllerDateRange range = ControllerDateRange.from(startDate, endDate);
         List<User> users = range == null
             ? userRepository.findAll()
             : userRepository.findByCreatedAtBetweenOrderByIdAsc(range.start, range.end);
@@ -138,8 +149,16 @@ public class AdminController {
             .map(user -> {
                 List<String> roleCodes = roleCodesMap.getOrDefault(user.getId(), java.util.Collections.emptyList());
                 String primaryRole = roleCodes.isEmpty() ? "" : roleCodes.get(0);
-                return new UserView(user.getId(), user.getUsername(), user.getDisplayName(),
-                    primaryRole, roleCodes, user.getPoints(), user.getEnabled(), user.getLastLoginAt());
+                return new UserView(
+                    user.getId(),
+                    user.getUsername(),
+                    user.getDisplayName(),
+                    primaryRole,
+                    roleCodes,
+                    user.getPoints(),
+                    user.getEnabled(),
+                    user.getLastLoginAt()
+                );
             })
             .collect(Collectors.toList());
     }
@@ -147,10 +166,11 @@ public class AdminController {
     @PostMapping("/users")
     public ResponseEntity<?> createUser(@Valid @RequestBody AdminUserCreateRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
-            return ResponseEntity.badRequest().body("username exists");
+            return ResponseEntity.badRequest().body(USERNAME_EXISTS);
         }
         Role role = roleRepository.findByCode(request.getRoleCode())
-            .orElseThrow(() -> new IllegalStateException("role not found"));
+            .orElseThrow(() -> new IllegalStateException(ROLE_NOT_FOUND));
+
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
@@ -164,9 +184,11 @@ public class AdminController {
 
     @PutMapping("/users/{id}")
     public ResponseEntity<?> updateUser(@PathVariable Long id, @Valid @RequestBody AdminUserUpdateRequest request) {
-        User user = userRepository.findById(id).orElseThrow(() -> new IllegalStateException("Not found"));
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new IllegalStateException(RECORD_NOT_FOUND));
         Role role = roleRepository.findByCode(request.getRoleCode())
-            .orElseThrow(() -> new IllegalStateException("role not found"));
+            .orElseThrow(() -> new IllegalStateException(ROLE_NOT_FOUND));
+
         user.setDisplayName(request.getDisplayName());
         if (request.getPoints() != null) {
             user.setPoints(request.getPoints());
@@ -191,70 +213,27 @@ public class AdminController {
     private Map<Long, List<String>> buildUserRoleCodesMap(List<User> users) {
         List<Long> userIds = users.stream().map(User::getId).collect(Collectors.toList());
         Map<Long, List<Long>> userRoles = sysUserRoleRepository.findByUserIdIn(userIds).stream()
-            .collect(Collectors.groupingBy(SysUserRole::getUserId,
-                Collectors.mapping(SysUserRole::getRoleId, Collectors.toList())));
+            .collect(Collectors.groupingBy(
+                SysUserRole::getUserId,
+                Collectors.mapping(SysUserRole::getRoleId, Collectors.toList())
+            ));
         Map<Long, Role> roleMap = roleRepository.findAll().stream()
-            .collect(Collectors.toMap(Role::getId, r -> r));
+            .collect(Collectors.toMap(Role::getId, role -> role));
 
         return userRoles.entrySet().stream()
             .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream()
                 .map(roleMap::get)
-                .filter(r -> r != null)
-                .sorted(Comparator.comparingInt(this::rolePriority).thenComparing(Role::getCode))
+                .filter(role -> role != null)
+                .sorted(Comparator.comparingInt(ControllerRoleSupport::rolePriority).thenComparing(Role::getCode))
                 .map(Role::getCode)
                 .collect(Collectors.toList())));
     }
 
     private void saveUserRole(Long userId, Long roleId) {
         sysUserRoleRepository.deleteByUserId(userId);
-        SysUserRole ur = new SysUserRole();
-        ur.setUserId(userId);
-        ur.setRoleId(roleId);
-        sysUserRoleRepository.save(ur);
-    }
-
-    private int rolePriority(Role role) {
-        if (role == null || role.getCode() == null) return 99;
-        switch (role.getCode()) {
-            case "ADMIN":
-                return 0;
-            case "PARENT":
-                return 1;
-            case "CHILD":
-                return 2;
-            default:
-                return 50;
-        }
-    }
-
-    private static class DateRange {
-        private final LocalDateTime start;
-        private final LocalDateTime end;
-
-        private DateRange(LocalDateTime start, LocalDateTime end) {
-            this.start = start;
-            this.end = end;
-        }
-
-        static DateRange from(String startDate, String endDate) {
-            if ((startDate == null || startDate.trim().isEmpty()) && (endDate == null || endDate.trim().isEmpty())) {
-                return null;
-            }
-            LocalDateTime start = null;
-            LocalDateTime end = null;
-            if (startDate != null && !startDate.trim().isEmpty()) {
-                start = LocalDate.parse(startDate.trim()).atStartOfDay();
-            }
-            if (endDate != null && !endDate.trim().isEmpty()) {
-                end = LocalDate.parse(endDate.trim()).atTime(LocalTime.MAX);
-            }
-            if (start == null) {
-                start = LocalDate.of(2000, 1, 1).atStartOfDay();
-            }
-            if (end == null) {
-                end = LocalDateTime.now();
-            }
-            return new DateRange(start, end);
-        }
+        SysUserRole userRole = new SysUserRole();
+        userRole.setUserId(userId);
+        userRole.setRoleId(roleId);
+        sysUserRoleRepository.save(userRole);
     }
 }

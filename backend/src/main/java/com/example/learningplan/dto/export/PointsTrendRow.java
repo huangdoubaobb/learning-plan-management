@@ -3,13 +3,13 @@ package com.example.learningplan.dto.export;
 import com.alibaba.excel.annotation.ExcelProperty;
 
 public class PointsTrendRow {
-    @ExcelProperty("日期")
+    @ExcelProperty("Date")
     private String date;
 
-    @ExcelProperty("积分获取")
+    @ExcelProperty("Points Earned")
     private Integer pointsEarned;
 
-    @ExcelProperty("积分消耗")
+    @ExcelProperty("Points Spent")
     private Integer pointsSpent;
 
     public PointsTrendRow() {}

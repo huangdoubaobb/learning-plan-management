@@ -30,7 +30,6 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,7 +41,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.Comparator;
 import java.util.UUID;
@@ -51,6 +49,11 @@ import java.util.UUID;
 @RequestMapping("/api/parent")
 @PreAuthorize("hasRole('PARENT')")
 public class ParentController {
+    private static final String RECORD_NOT_FOUND = "Record not found";
+    private static final String ACCESS_DENIED = "Access denied";
+    private static final String CHILD_NOT_BOUND = "Child does not belong to the current parent";
+    private static final String TASK_LOCKED = "Task cannot be changed after submission or completion";
+
     @Value("${app.upload-dir:uploads}")
     private String uploadDir;
 
@@ -61,15 +64,17 @@ public class ParentController {
     private final TaskRepository taskRepository;
     private final RewardRepository rewardRepository;
     private final RedemptionRepository redemptionRepository;
+    private final PointsLedgerRepository pointsLedgerRepository;
     private final ReportService reportService;
     private final PointsService pointsService;
     private final PasswordEncoder passwordEncoder;
 
     public ParentController(UserRepository userRepository, RoleRepository roleRepository,
-                            SysUserRoleRepository sysUserRoleRepository,
-                            ParentChildRepository parentChildRepository, TaskRepository taskRepository,
-                            RewardRepository rewardRepository, RedemptionRepository redemptionRepository,
-                            ReportService reportService, PointsService pointsService, PasswordEncoder passwordEncoder) {
+                             SysUserRoleRepository sysUserRoleRepository,
+                             ParentChildRepository parentChildRepository, TaskRepository taskRepository,
+                             RewardRepository rewardRepository, RedemptionRepository redemptionRepository,
+                             PointsLedgerRepository pointsLedgerRepository,
+                             ReportService reportService, PointsService pointsService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.sysUserRoleRepository = sysUserRoleRepository;
@@ -77,6 +82,7 @@ public class ParentController {
         this.taskRepository = taskRepository;
         this.rewardRepository = rewardRepository;
         this.redemptionRepository = redemptionRepository;
+        this.pointsLedgerRepository = pointsLedgerRepository;
         this.reportService = reportService;
         this.pointsService = pointsService;
         this.passwordEncoder = passwordEncoder;
@@ -85,7 +91,7 @@ public class ParentController {
     @GetMapping("/me")
     public UserView me(@AuthenticationPrincipal UserPrincipal principal) {
         User parent = userRepository.findById(principal.getUserId())
-            .orElseThrow(() -> new IllegalStateException("Not found"));
+            .orElseThrow(() -> new IllegalStateException(RECORD_NOT_FOUND));
         return new UserView(parent.getId(), parent.getUsername(), parent.getDisplayName(),
             primaryRoleCode(parent.getId()), parent.getPoints(), parent.getEnabled());
     }
@@ -94,10 +100,10 @@ public class ParentController {
     public ResponseEntity<?> createChild(@AuthenticationPrincipal UserPrincipal principal,
                                          @Valid @RequestBody ChildCreateRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
-            return ResponseEntity.badRequest().body("用户名已存在");
+            return ResponseEntity.badRequest().body("Username already exists");
         }
         Role childRole = roleRepository.findByCode("CHILD")
-            .orElseThrow(() -> new IllegalStateException("CHILD 角色不存在"));
+            .orElseThrow(() -> new IllegalStateException("Role not found"));
         User child = new User();
         child.setUsername(request.getUsername());
         child.setPasswordHash(passwordEncoder.encode(request.getPassword()));
@@ -107,7 +113,7 @@ public class ParentController {
 
         ParentChild mapping = new ParentChild();
         mapping.setParent(userRepository.findById(principal.getUserId())
-            .orElseThrow(() -> new IllegalStateException("Not found")));
+            .orElseThrow(() -> new IllegalStateException(RECORD_NOT_FOUND)));
         mapping.setChild(child);
         parentChildRepository.save(mapping);
 
@@ -119,7 +125,7 @@ public class ParentController {
     public List<UserView> listChildren(@AuthenticationPrincipal UserPrincipal principal,
                                        @RequestParam(required = false) String startDate,
                                        @RequestParam(required = false) String endDate) {
-        DateRange range = DateRange.from(startDate, endDate);
+        ControllerDateRange range = ControllerDateRange.from(startDate, endDate);
         List<ParentChild> mappings = range == null
             ? parentChildRepository.findByParentId(principal.getUserId())
             : parentChildRepository.findByParentIdAndCreatedAtBetween(principal.getUserId(), range.start, range.end);
@@ -130,16 +136,62 @@ public class ParentController {
             .collect(Collectors.toList());
     }
 
+    @PutMapping("/children/{id}")
+    public ResponseEntity<?> updateChild(@AuthenticationPrincipal UserPrincipal principal,
+                                         @PathVariable Long id,
+                                         @Valid @RequestBody ChildUpdateRequest request) {
+        User child = findOwnedChild(principal.getUserId(), id);
+        if (child == null) {
+            return ResponseEntity.badRequest().body(ACCESS_DENIED);
+        }
+        String nextUsername = request.getUsername().trim();
+        if (!child.getUsername().equals(nextUsername) && userRepository.existsByUsername(nextUsername)) {
+            return ResponseEntity.badRequest().body("Username already exists");
+        }
+        child.setUsername(nextUsername);
+        child.setDisplayName(request.getDisplayName().trim());
+        if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
+            child.setPasswordHash(passwordEncoder.encode(request.getPassword().trim()));
+        }
+        userRepository.save(child);
+        return ResponseEntity.ok(new UserView(child.getId(), child.getUsername(), child.getDisplayName(),
+            primaryRoleCode(child.getId()), child.getPoints(), child.getEnabled()));
+    }
+
+    @DeleteMapping("/children/{id}")
+    @Transactional
+    public ResponseEntity<?> deleteChild(@AuthenticationPrincipal UserPrincipal principal,
+                                         @PathVariable Long id) {
+        User child = findOwnedChild(principal.getUserId(), id);
+        if (child == null) {
+            return ResponseEntity.badRequest().body(ACCESS_DENIED);
+        }
+        if (!taskRepository.findByChildId(child.getId()).isEmpty()) {
+            return ResponseEntity.badRequest().body("Child cannot be deleted because task records exist");
+        }
+        if (!redemptionRepository.findByChildId(child.getId()).isEmpty()) {
+            return ResponseEntity.badRequest().body("Child cannot be deleted because redemption records exist");
+        }
+        if (!pointsServiceRecordsEmpty(child.getId())) {
+            return ResponseEntity.badRequest().body("Child cannot be deleted because points records exist");
+        }
+        parentChildRepository.findByChildId(child.getId()).forEach(parentChildRepository::delete);
+        sysUserRoleRepository.deleteByUserId(child.getId());
+        userRepository.delete(child);
+        return ResponseEntity.ok("Deleted successfully");
+    }
+
     @PostMapping("/tasks")
     public ResponseEntity<?> createTask(@AuthenticationPrincipal UserPrincipal principal,
                                         @Valid @RequestBody TaskCreateRequest request) {
-        if (!parentChildRepository.existsByParentIdAndChildId(principal.getUserId(), request.getChildId())) {
-            return ResponseEntity.badRequest().body("孩子不属于当前家长");
+        ResponseEntity<?> childCheck = validateChildOwnership(principal.getUserId(), request.getChildId());
+        if (childCheck != null) {
+            return childCheck;
         }
         User parent = userRepository.findById(principal.getUserId())
-            .orElseThrow(() -> new IllegalStateException("Not found"));
+            .orElseThrow(() -> new IllegalStateException(RECORD_NOT_FOUND));
         User child = userRepository.findById(request.getChildId())
-            .orElseThrow(() -> new IllegalStateException("Not found"));
+            .orElseThrow(() -> new IllegalStateException(RECORD_NOT_FOUND));
 
         Task task = new Task();
         task.setParent(parent);
@@ -156,22 +208,22 @@ public class ParentController {
     public ResponseEntity<?> updateTask(@AuthenticationPrincipal UserPrincipal principal,
                                         @PathVariable Long id,
                                         @Valid @RequestBody TaskCreateRequest request) {
-        Task task = taskRepository.findById(id)
-            .orElseThrow(() -> new IllegalStateException("Not found"));
-        if (!task.getParent().getId().equals(principal.getUserId())) {
-            return ResponseEntity.badRequest().body("任务不属于当前家长");
+        Task task = findParentTask(principal.getUserId(), id);
+        if (task == null) {
+            return ResponseEntity.badRequest().body(ACCESS_DENIED);
         }
         if (task.getStatus() == TaskStatus.COMPLETED) {
-            return ResponseEntity.badRequest().body("已完成任务不允许修改");
+            return ResponseEntity.badRequest().body("Completed task cannot be edited");
         }
         if (task.getSubmittedAt() != null) {
-            return ResponseEntity.badRequest().body("任务已提交审核，不能修改");
+            return ResponseEntity.badRequest().body("Submitted task cannot be edited");
         }
-        if (!parentChildRepository.existsByParentIdAndChildId(principal.getUserId(), request.getChildId())) {
-            return ResponseEntity.badRequest().body("孩子不属于当前家长");
+        ResponseEntity<?> childCheck = validateChildOwnership(principal.getUserId(), request.getChildId());
+        if (childCheck != null) {
+            return childCheck;
         }
         User child = userRepository.findById(request.getChildId())
-            .orElseThrow(() -> new IllegalStateException("Not found"));
+            .orElseThrow(() -> new IllegalStateException(RECORD_NOT_FOUND));
 
         task.setChild(child);
         task.setTitle(request.getTitle());
@@ -188,20 +240,19 @@ public class ParentController {
                                               @PathVariable Long id,
                                               @RequestParam(value = "files", required = false) MultipartFile[] files,
                                               @RequestParam(value = "replace", defaultValue = "false") boolean replace) throws IOException {
-        Task task = taskRepository.findById(id)
-            .orElseThrow(() -> new IllegalStateException("Not found"));
-        if (!task.getParent().getId().equals(principal.getUserId())) {
-            return ResponseEntity.badRequest().body("Task does not belong to current parent");
+        Task task = findParentTask(principal.getUserId(), id);
+        if (task == null) {
+            return ResponseEntity.badRequest().body(ACCESS_DENIED);
         }
         if (task.getStatus() == TaskStatus.COMPLETED || task.getSubmittedAt() != null) {
-            return ResponseEntity.badRequest().body("Task cannot be modified");
+            return ResponseEntity.badRequest().body(TASK_LOCKED);
         }
         if (files == null || files.length == 0) {
             return ResponseEntity.ok(toTaskView(task));
         }
         List<String> urls = new ArrayList<>();
         for (MultipartFile file : files) {
-            String error = validateImage(file);
+            String error = ControllerImageSupport.validateRequiredImage(file);
             if (error != null) {
                 return ResponseEntity.badRequest().body(error);
             }
@@ -213,7 +264,7 @@ public class ParentController {
         if (replace) {
             task.setTaskImages(String.join(",", urls));
         } else {
-            List<String> existing = new ArrayList<>(parseImages(task.getTaskImages()));
+            List<String> existing = new ArrayList<>(ControllerImageSupport.parseImages(task.getTaskImages()));
             existing.addAll(urls);
             task.setTaskImages(String.join(",", existing));
         }
@@ -224,25 +275,23 @@ public class ParentController {
     @DeleteMapping("/tasks/{id}")
     public ResponseEntity<?> deleteTask(@AuthenticationPrincipal UserPrincipal principal,
                                         @PathVariable Long id) {
-        Task task = taskRepository.findById(id)
-            .orElseThrow(() -> new IllegalStateException("Not found"));
-        if (!task.getParent().getId().equals(principal.getUserId())) {
-            return ResponseEntity.badRequest().body("任务不属于当前家长");
+        Task task = findParentTask(principal.getUserId(), id);
+        if (task == null) {
+            return ResponseEntity.badRequest().body(ACCESS_DENIED);
         }
         if (task.getStatus() == TaskStatus.COMPLETED || task.getSubmittedAt() != null) {
-            return ResponseEntity.badRequest().body("已完成任务不允许删除");
+            return ResponseEntity.badRequest().body(TASK_LOCKED);
         }
         taskRepository.delete(task);
-        return ResponseEntity.ok("删除成功");
+        return ResponseEntity.ok("Deleted successfully");
     }
 
     @GetMapping("/tasks/{id}")
     public ResponseEntity<?> getTask(@AuthenticationPrincipal UserPrincipal principal,
                                     @PathVariable Long id) {
-        Task task = taskRepository.findById(id)
-            .orElseThrow(() -> new IllegalStateException("Not found"));
-        if (!task.getParent().getId().equals(principal.getUserId())) {
-            return ResponseEntity.badRequest().body("任务不属于当前家长");
+        Task task = findParentTask(principal.getUserId(), id);
+        if (task == null) {
+            return ResponseEntity.badRequest().body(ACCESS_DENIED);
         }
         return ResponseEntity.ok(toTaskView(task));
     }
@@ -279,10 +328,9 @@ public class ParentController {
 
     @GetMapping("/rewards/{id}")
     public ResponseEntity<?> getReward(@AuthenticationPrincipal UserPrincipal principal, @PathVariable Long id) {
-        Reward reward = rewardRepository.findById(id)
-            .orElseThrow(() -> new IllegalStateException("Not found"));
-        if (!reward.getParent().getId().equals(principal.getUserId())) {
-            return ResponseEntity.badRequest().body("Reward does not belong to current parent");
+        Reward reward = findParentReward(principal.getUserId(), id);
+        if (reward == null) {
+            return ResponseEntity.badRequest().body(ACCESS_DENIED);
         }
         return ResponseEntity.ok(toRewardView(reward));
     }
@@ -291,7 +339,7 @@ public class ParentController {
     public ResponseEntity<?> createReward(@AuthenticationPrincipal UserPrincipal principal,
                                           @Valid @RequestBody RewardCreateRequest request) {
         User parent = userRepository.findById(principal.getUserId())
-            .orElseThrow(() -> new IllegalStateException("Not found"));
+            .orElseThrow(() -> new IllegalStateException(RECORD_NOT_FOUND));
         Reward reward = new Reward();
         reward.setParent(parent);
         reward.setName(request.getName());
@@ -306,10 +354,9 @@ public class ParentController {
     public ResponseEntity<?> updateReward(@AuthenticationPrincipal UserPrincipal principal,
                                           @PathVariable Long id,
                                           @Valid @RequestBody RewardCreateRequest request) {
-        Reward reward = rewardRepository.findById(id)
-            .orElseThrow(() -> new IllegalStateException("Not found"));
-        if (!reward.getParent().getId().equals(principal.getUserId())) {
-            return ResponseEntity.badRequest().body("Reward does not belong to current parent");
+        Reward reward = findParentReward(principal.getUserId(), id);
+        if (reward == null) {
+            return ResponseEntity.badRequest().body(ACCESS_DENIED);
         }
         reward.setName(request.getName());
         reward.setDescription(request.getDescription());
@@ -322,13 +369,12 @@ public class ParentController {
     @DeleteMapping("/rewards/{id}")
     public ResponseEntity<?> deleteReward(@AuthenticationPrincipal UserPrincipal principal,
                                           @PathVariable Long id) {
-        Reward reward = rewardRepository.findById(id)
-            .orElseThrow(() -> new IllegalStateException("Not found"));
-        if (!reward.getParent().getId().equals(principal.getUserId())) {
-            return ResponseEntity.badRequest().body("Reward does not belong to current parent");
+        Reward reward = findParentReward(principal.getUserId(), id);
+        if (reward == null) {
+            return ResponseEntity.badRequest().body(ACCESS_DENIED);
         }
         rewardRepository.delete(reward);
-        return ResponseEntity.ok("Deleted");
+        return ResponseEntity.ok("Deleted successfully");
     }
 
     @PostMapping("/rewards/{id}/images")
@@ -336,15 +382,14 @@ public class ParentController {
     public ResponseEntity<?> uploadRewardImages(@AuthenticationPrincipal UserPrincipal principal,
                                                 @PathVariable Long id,
                                                 @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
-        Reward reward = rewardRepository.findById(id)
-            .orElseThrow(() -> new IllegalStateException("Not found"));
-        if (!reward.getParent().getId().equals(principal.getUserId())) {
-            return ResponseEntity.badRequest().body("Reward does not belong to current parent");
+        Reward reward = findParentReward(principal.getUserId(), id);
+        if (reward == null) {
+            return ResponseEntity.badRequest().body(ACCESS_DENIED);
         }
         if (file == null || file.isEmpty()) {
             return ResponseEntity.ok(toRewardView(reward));
         }
-        String error = validateImage(file);
+        String error = ControllerImageSupport.validateRequiredImage(file);
         if (error != null) {
             return ResponseEntity.badRequest().body(error);
         }
@@ -382,13 +427,13 @@ public class ParentController {
                                          @RequestParam(required = false) String q,
                                          @RequestParam(required = false) String startDate,
                                          @RequestParam(required = false) String endDate) {
-        DateRange range = DateRange.from(startDate, endDate);
+        ControllerDateRange range = ControllerDateRange.from(startDate, endDate);
         TaskStatus taskStatus = null;
         if (status != null && !status.trim().isEmpty()) {
             try {
                 taskStatus = TaskStatus.valueOf(status.toUpperCase());
             } catch (IllegalArgumentException e) {
-                // 忽略无效的状态值
+                taskStatus = null;
             }
         }
         
@@ -417,44 +462,42 @@ public class ParentController {
     @PostMapping("/tasks/{id}/approve")
     @Transactional
     public ResponseEntity<?> approveTask(@AuthenticationPrincipal UserPrincipal principal, @PathVariable Long id) {
-        Task task = taskRepository.findById(id)
-            .orElseThrow(() -> new IllegalStateException("Not found"));
-        if (!task.getParent().getId().equals(principal.getUserId())) {
-            return ResponseEntity.badRequest().body("任务不属于当前家长");
+        Task task = findParentTask(principal.getUserId(), id);
+        if (task == null) {
+            return ResponseEntity.badRequest().body(ACCESS_DENIED);
         }
         if (task.getStatus() == TaskStatus.COMPLETED) {
-            return ResponseEntity.badRequest().body("任务已完成");
+            return ResponseEntity.badRequest().body("Task already approved");
         }
         if (task.getSubmittedAt() == null) {
-            return ResponseEntity.badRequest().body("任务尚未提交审核");
+            return ResponseEntity.badRequest().body("Task has not been submitted");
         }
         task.setStatus(TaskStatus.COMPLETED);
         task.setCompletedAt(LocalDateTime.now());
         taskRepository.save(task);
 
         User child = task.getChild();
-        pointsService.earnPoints(child, task.getPoints(), PointsRefType.TASK, task.getId(), "任务完成");
+        pointsService.earnPoints(child, task.getPoints(), PointsRefType.TASK, task.getId(), "Task approved");
 
-        return ResponseEntity.ok("审核通过");
+        return ResponseEntity.ok("Approved successfully");
     }
 
     @PostMapping("/tasks/{id}/reject")
     @Transactional
     public ResponseEntity<?> rejectTask(@AuthenticationPrincipal UserPrincipal principal, @PathVariable Long id) {
-        Task task = taskRepository.findById(id)
-            .orElseThrow(() -> new IllegalStateException("Not found"));
-        if (!task.getParent().getId().equals(principal.getUserId())) {
-            return ResponseEntity.badRequest().body("任务不属于当前家长");
+        Task task = findParentTask(principal.getUserId(), id);
+        if (task == null) {
+            return ResponseEntity.badRequest().body(ACCESS_DENIED);
         }
         if (task.getStatus() == TaskStatus.COMPLETED) {
-            return ResponseEntity.badRequest().body("任务已完成");
+            return ResponseEntity.badRequest().body("Completed task cannot be rejected");
         }
         task.setSubmittedAt(null);
         task.setCompletedAt(null);
         task.setCheckinNote(null);
         task.setCheckinImages(null);
         taskRepository.save(task);
-        return ResponseEntity.ok("已拒绝");
+        return ResponseEntity.ok("Rejected successfully");
     }
 
     @PostMapping("/redemptions/batch-approve")
@@ -462,13 +505,12 @@ public class ParentController {
     public ResponseEntity<?> approveRedemptions(@AuthenticationPrincipal UserPrincipal principal,
                                                 @RequestBody RedemptionBatchRequest request) {
         if (request == null || request.getIds() == null || request.getIds().isEmpty()) {
-            return ResponseEntity.badRequest().body("请选择记录");
+            return ResponseEntity.badRequest().body("Please select at least one redemption");
         }
         for (Long id : request.getIds()) {
-            Redemption redemption = redemptionRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Not found"));
-            if (!redemption.getReward().getParent().getId().equals(principal.getUserId())) {
-                return ResponseEntity.badRequest().body("兑换记录不属于当前家长");
+            Redemption redemption = findParentRedemption(principal.getUserId(), id);
+            if (redemption == null) {
+                return ResponseEntity.badRequest().body(ACCESS_DENIED);
             }
             if (redemption.getStatus() != RedemptionStatus.PENDING) {
                 continue;
@@ -480,7 +522,7 @@ public class ParentController {
             }
             redemptionRepository.save(redemption);
         }
-        return ResponseEntity.ok("批量已同意");
+        return ResponseEntity.ok("Approved successfully");
     }
 
     @PostMapping("/redemptions/batch-reject")
@@ -488,13 +530,12 @@ public class ParentController {
     public ResponseEntity<?> rejectRedemptions(@AuthenticationPrincipal UserPrincipal principal,
                                                @RequestBody RedemptionBatchRequest request) {
         if (request == null || request.getIds() == null || request.getIds().isEmpty()) {
-            return ResponseEntity.badRequest().body("请选择记录");
+            return ResponseEntity.badRequest().body("Please select at least one redemption");
         }
         for (Long id : request.getIds()) {
-            Redemption redemption = redemptionRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Not found"));
-            if (!redemption.getReward().getParent().getId().equals(principal.getUserId())) {
-                return ResponseEntity.badRequest().body("兑换记录不属于当前家长");
+            Redemption redemption = findParentRedemption(principal.getUserId(), id);
+            if (redemption == null) {
+                return ResponseEntity.badRequest().body(ACCESS_DENIED);
             }
             if (redemption.getStatus() != RedemptionStatus.PENDING) {
                 continue;
@@ -504,7 +545,7 @@ public class ParentController {
             rewardRepository.save(reward);
 
             User child = redemption.getChild();
-            String note = "兑换被拒绝返还积分";
+            String note = "Reward redemption rejected";
             if (request.getNote() != null && !request.getNote().trim().isEmpty()) {
                 note = note + " - " + request.getNote().trim();
                 redemption.setReviewNote(request.getNote().trim());
@@ -515,7 +556,7 @@ public class ParentController {
             redemption.setReviewedAt(LocalDateTime.now());
             redemptionRepository.save(redemption);
         }
-        return ResponseEntity.ok("批量已拒绝");
+        return ResponseEntity.ok("Rejected successfully");
     }
 
     @GetMapping("/stats")
@@ -540,7 +581,7 @@ public class ParentController {
                                            @RequestParam(required = false) String q,
                                            @RequestParam(required = false) String startDate,
                                            @RequestParam(required = false) String endDate) {
-        DateRange range = DateRange.from(startDate, endDate);
+        ControllerDateRange range = ControllerDateRange.from(startDate, endDate);
         LocalDateTime start = range != null ? range.start : null;
         LocalDateTime end = range != null ? range.end : null;
         long pendingCount = taskRepository.countSearchTasksByCreatedAt(principal.getUserId(), childId, TaskStatus.PENDING, start, end, q);
@@ -556,8 +597,9 @@ public class ParentController {
     @GetMapping("/report/summary")
     public ResponseEntity<?> reportSummary(@AuthenticationPrincipal UserPrincipal principal,
                                            @RequestParam Long childId) {
-        if (!parentChildRepository.existsByParentIdAndChildId(principal.getUserId(), childId)) {
-            return ResponseEntity.badRequest().body("孩子不属于当前家长");
+        ResponseEntity<?> childCheck = validateChildOwnership(principal.getUserId(), childId);
+        if (childCheck != null) {
+            return childCheck;
         }
         return ResponseEntity.ok(reportService.buildSummary(childId));
     }
@@ -566,8 +608,9 @@ public class ParentController {
     public ResponseEntity<?> reportTrend(@AuthenticationPrincipal UserPrincipal principal,
                                          @RequestParam Long childId,
                                          @RequestParam(defaultValue = "14") int days) {
-        if (!parentChildRepository.existsByParentIdAndChildId(principal.getUserId(), childId)) {
-            return ResponseEntity.badRequest().body("孩子不属于当前家长");
+        ResponseEntity<?> childCheck = validateChildOwnership(principal.getUserId(), childId);
+        if (childCheck != null) {
+            return childCheck;
         }
         return ResponseEntity.ok(reportService.buildTrend(childId, days));
     }
@@ -576,8 +619,9 @@ public class ParentController {
     public ResponseEntity<?> reportPointsTrend(@AuthenticationPrincipal UserPrincipal principal,
                                                @RequestParam Long childId,
                                                @RequestParam(defaultValue = "14") int days) {
-        if (!parentChildRepository.existsByParentIdAndChildId(principal.getUserId(), childId)) {
-            return ResponseEntity.badRequest().body("孩子不属于当前家长");
+        ResponseEntity<?> childCheck = validateChildOwnership(principal.getUserId(), childId);
+        if (childCheck != null) {
+            return childCheck;
         }
         return ResponseEntity.ok(reportService.buildPointsTrend(childId, days));
     }
@@ -586,7 +630,7 @@ public class ParentController {
     public ResponseEntity<byte[]> exportReport(@AuthenticationPrincipal UserPrincipal principal,
                                                @RequestParam Long childId,
                                                @RequestParam(defaultValue = "30") int days) throws Exception {
-        if (!parentChildRepository.existsByParentIdAndChildId(principal.getUserId(), childId)) {
+        if (validateChildOwnership(principal.getUserId(), childId) != null) {
             return ResponseEntity.badRequest().build();
         }
         ReportSummaryResponse summary = reportService.buildSummary(childId);
@@ -597,14 +641,14 @@ public class ParentController {
         ExcelWriter writer = EasyExcel.write(out).build();
         try {
             List<SummaryRow> summaryData = new java.util.ArrayList<>();
-            summaryData.add(new SummaryRow("任务总数", String.valueOf(summary.getTasksTotal())));
-            summaryData.add(new SummaryRow("已完成", String.valueOf(summary.getTasksCompleted())));
+            summaryData.add(new SummaryRow("Total Tasks", String.valueOf(summary.getTasksTotal())));
+            summaryData.add(new SummaryRow("Completed Tasks", String.valueOf(summary.getTasksCompleted())));
             double rate = summary.getTasksTotal() == 0 ? 0 : (double) summary.getTasksCompleted() / (double) summary.getTasksTotal();
-            summaryData.add(new SummaryRow("完成率", String.format("%.2f%%", rate * 100)));
-            summaryData.add(new SummaryRow("当前积分", String.valueOf(summary.getPointsBalance())));
-            summaryData.add(new SummaryRow("积分获取", String.valueOf(summary.getPointsEarned())));
-            summaryData.add(new SummaryRow("积分消耗", String.valueOf(summary.getPointsSpent())));
-            summaryData.add(new SummaryRow("兑换次数", String.valueOf(summary.getRewardsRedeemed())));
+            summaryData.add(new SummaryRow("Completion Rate", String.format("%.2f%%", rate * 100)));
+            summaryData.add(new SummaryRow("Points Balance", String.valueOf(summary.getPointsBalance())));
+            summaryData.add(new SummaryRow("Points Earned", String.valueOf(summary.getPointsEarned())));
+            summaryData.add(new SummaryRow("Points Spent", String.valueOf(summary.getPointsSpent())));
+            summaryData.add(new SummaryRow("Rewards Redeemed", String.valueOf(summary.getRewardsRedeemed())));
 
             List<TasksTrendRow> trendData = new java.util.ArrayList<>();
             for (ReportTrendPoint point : trend.getPoints()) {
@@ -652,57 +696,25 @@ public class ParentController {
     }
 
     private TaskView toTaskView(Task task) {
-        List<String> taskImages = parseImages(task.getTaskImages());
-        List<String> checkinImages = parseImages(task.getCheckinImages());
-        List<String> images = mergeImages(taskImages, checkinImages);
+        List<String> taskImages = ControllerImageSupport.parseImages(task.getTaskImages());
+        List<String> checkinImages = ControllerImageSupport.parseImages(task.getCheckinImages());
+        List<String> images = ControllerImageSupport.mergeImages(taskImages, checkinImages);
         return new TaskView(task.getId(), task.getChild().getId(), task.getTitle(), task.getDescription(), task.getPoints(), task.getStatus(),
             task.getSubmittedAt(), task.getCompletedAt(), task.getCheckinNote(), task.getCreatedAt(), images, taskImages, checkinImages);
     }
 
     private RewardView toRewardView(Reward reward) {
-        List<String> images = parseImages(reward.getImages());
-        return new RewardView(reward.getId(), reward.getName(), reward.getDescription(), reward.getPointsCost(), reward.getStock(), reward.getStatus(), images);
-    }
-
-    private List<String> parseImages(String raw) {
-        if (raw == null || raw.trim().isEmpty()) {
-            return Collections.emptyList();
-        }
-        return Arrays.stream(raw.split(","))
-            .map(String::trim)
-            .filter(s -> !s.isEmpty())
-            .collect(Collectors.toList());
-    }
-
-    private List<String> mergeImages(List<String> taskImages, List<String> checkinImages) {
-        List<String> merged = new ArrayList<>();
-        if (taskImages != null) merged.addAll(taskImages);
-        if (checkinImages != null) merged.addAll(checkinImages);
-        return merged;
-    }
-
-    private String validateImage(MultipartFile file) throws IOException {
-        if (file == null || file.isEmpty()) {
-            return "No file provided";
-        }
-        String contentType = file.getContentType();
-        if (contentType == null || !(contentType.equals("image/jpeg") || contentType.equals("image/png"))) {
-            return "Only JPG/PNG images are allowed";
-        }
-        String original = file.getOriginalFilename();
-        if (original != null && original.contains(".")) {
-            String ext = original.substring(original.lastIndexOf(".") + 1).toLowerCase();
-            if (!(ext.equals("jpg") || ext.equals("jpeg") || ext.equals("png"))) {
-                return "Only JPG/PNG images are allowed";
-            }
-        }
-        if (!isImageMagic(file)) {
-            return "Invalid image format";
-        }
-        if (file.getSize() > 10 * 1024 * 1024L) {
-            return "Image size cannot exceed 10MB";
-        }
-        return null;
+        List<String> images = ControllerImageSupport.parseImages(reward.getImages());
+        return new RewardView(
+            reward.getId(),
+            reward.getName(),
+            reward.getDescription(),
+            reward.getPointsCost(),
+            reward.getStock(),
+            reward.getStatus(),
+            reward.getCreatedAt(),
+            images
+        );
     }
 
     private String storeTaskImage(Long taskId, MultipartFile file) throws IOException {
@@ -739,45 +751,55 @@ public class ParentController {
         return "/uploads/reward-images/" + rewardId + "/" + filename;
     }
 
-    private boolean isImageMagic(MultipartFile file) throws IOException {
-        try (InputStream in = file.getInputStream()) {
-            byte[] header = new byte[8];
-            int read = in.read(header);
-            if (read < 3) return false;
-            if ((header[0] & 0xFF) == 0xFF && (header[1] & 0xFF) == 0xD8 && (header[2] & 0xFF) == 0xFF) {
-                return true;
-            }
-            if (read >= 8 &&
-                (header[0] & 0xFF) == 0x89 &&
-                header[1] == 0x50 &&
-                header[2] == 0x4E &&
-                header[3] == 0x47 &&
-                header[4] == 0x0D &&
-                header[5] == 0x0A &&
-                header[6] == 0x1A &&
-                header[7] == 0x0A) {
-                return true;
-            }
-            return false;
-        }
-    }
-
-    private Sort buildSort(String sortBy, String sortDir) {
-        String key;
-        if ("points".equalsIgnoreCase(sortBy)) key = "points";
-        else if ("status".equalsIgnoreCase(sortBy)) key = "status";
-        else if ("completedAt".equalsIgnoreCase(sortBy)) key = "completedAt";
-        else if ("createdAt".equalsIgnoreCase(sortBy)) key = "createdAt";
-        else if ("title".equalsIgnoreCase(sortBy)) key = "title";
-        else key = "createdAt";
-
-        Sort.Direction direction = "desc".equalsIgnoreCase(sortDir) ? Sort.Direction.DESC : Sort.Direction.ASC;
-        return Sort.by(direction, key);
-    }
-
     private void saveUserRole(Long userId, Long roleId) {
         sysUserRoleRepository.deleteByUserId(userId);
         sysUserRoleRepository.upsertUserRole(userId, roleId);
+    }
+
+    private ResponseEntity<?> validateChildOwnership(Long parentId, Long childId) {
+        if (!parentChildRepository.existsByParentIdAndChildId(parentId, childId)) {
+            return ResponseEntity.badRequest().body(CHILD_NOT_BOUND);
+        }
+        return null;
+    }
+
+    private Task findParentTask(Long parentId, Long taskId) {
+        Task task = taskRepository.findById(taskId)
+            .orElseThrow(() -> new IllegalStateException(RECORD_NOT_FOUND));
+        if (!task.getParent().getId().equals(parentId)) {
+            return null;
+        }
+        return task;
+    }
+
+    private Reward findParentReward(Long parentId, Long rewardId) {
+        Reward reward = rewardRepository.findById(rewardId)
+            .orElseThrow(() -> new IllegalStateException(RECORD_NOT_FOUND));
+        if (!reward.getParent().getId().equals(parentId)) {
+            return null;
+        }
+        return reward;
+    }
+
+    private Redemption findParentRedemption(Long parentId, Long redemptionId) {
+        Redemption redemption = redemptionRepository.findById(redemptionId)
+            .orElseThrow(() -> new IllegalStateException(RECORD_NOT_FOUND));
+        if (!redemption.getReward().getParent().getId().equals(parentId)) {
+            return null;
+        }
+        return redemption;
+    }
+
+    private User findOwnedChild(Long parentId, Long childId) {
+        if (!parentChildRepository.existsByParentIdAndChildId(parentId, childId)) {
+            return null;
+        }
+        return userRepository.findById(childId)
+            .orElseThrow(() -> new IllegalStateException(RECORD_NOT_FOUND));
+    }
+
+    private boolean pointsServiceRecordsEmpty(Long childId) {
+        return pointsLedgerRepository.findByChildId(childId).isEmpty();
     }
 
     private String primaryRoleCode(Long userId) {
@@ -788,55 +810,9 @@ public class ParentController {
             return "";
         }
         List<Role> roles = roleRepository.findAllById(roleIds).stream()
-            .sorted(Comparator.comparingInt(this::rolePriority).thenComparing(Role::getCode))
+            .sorted(Comparator.comparingInt(ControllerRoleSupport::rolePriority).thenComparing(Role::getCode))
             .collect(Collectors.toList());
         return roles.isEmpty() ? "" : roles.get(0).getCode();
     }
 
-    private int rolePriority(Role role) {
-        if (role == null || role.getCode() == null) return 99;
-        switch (role.getCode()) {
-            case "ADMIN":
-                return 0;
-            case "PARENT":
-                return 1;
-            case "CHILD":
-                return 2;
-            default:
-                return 50;
-        }
-    }
-
-    private static class DateRange {
-        private final LocalDateTime start;
-        private final LocalDateTime end;
-
-        private DateRange(LocalDateTime start, LocalDateTime end) {
-            this.start = start;
-            this.end = end;
-        }
-
-        static DateRange from(String startDate, String endDate) {
-            if ((startDate == null || startDate.trim().isEmpty()) && (endDate == null || endDate.trim().isEmpty())) {
-                return null;
-            }
-            LocalDateTime start = null;
-            LocalDateTime end = null;
-            if (startDate != null && !startDate.trim().isEmpty()) {
-                start = LocalDate.parse(startDate.trim()).atStartOfDay();
-            }
-            if (endDate != null && !endDate.trim().isEmpty()) {
-                end = LocalDate.parse(endDate.trim()).atTime(LocalTime.MAX);
-            }
-            if (start == null) {
-                start = LocalDate.of(2000, 1, 1).atStartOfDay();
-            }
-            if (end == null) {
-                end = LocalDateTime.now();
-            }
-            return new DateRange(start, end);
-        }
-    }
 }
-
-

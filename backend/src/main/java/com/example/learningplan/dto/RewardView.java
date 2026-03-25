@@ -1,6 +1,7 @@
 package com.example.learningplan.dto;
 
 import com.example.learningplan.entity.RewardStatus;
+import java.time.LocalDateTime;
 
 public class RewardView {
     private Long id;
@@ -9,16 +10,18 @@ public class RewardView {
     private Integer pointsCost;
     private Integer stock;
     private RewardStatus status;
+    private LocalDateTime createdAt;
     private java.util.List<String> images;
 
     public RewardView(Long id, String name, String description, Integer pointsCost, Integer stock, RewardStatus status,
-                      java.util.List<String> images) {
+                      LocalDateTime createdAt, java.util.List<String> images) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.pointsCost = pointsCost;
         this.stock = stock;
         this.status = status;
+        this.createdAt = createdAt;
         this.images = images;
     }
 
@@ -44,6 +47,10 @@ public class RewardView {
 
     public RewardStatus getStatus() {
         return status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
     public java.util.List<String> getImages() {

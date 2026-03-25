@@ -1,29 +1,45 @@
 ﻿<template>
   <div class="task-page">
-    <section class="stats-grid task-stats">
-      <div class="stat-card">
-        <div class="stat-title">任务总数</div>
-        <div class="stat-value">{{ stats.tasks }}</div>
-        <div class="stat-foot">筛选结果总数 {{ total }}</div>
+    <section class="vea-stat-grid task-stats">
+      <div class="vea-stat">
+        <div class="vea-stat-icon bg-green"><el-icon><Calendar /></el-icon></div>
+        <div class="vea-stat-content">
+          <div class="vea-stat-title">任务总数</div>
+          <div class="vea-stat-value">{{ stats.tasks }}</div>
+          <div class="vea-stat-foot">筛选结果总数 {{ total }}</div>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-title">孩子数量</div>
-        <div class="stat-value">{{ stats.children }}</div>
-        <div class="stat-foot">家庭账号数</div>
+      <div class="vea-stat">
+        <div class="vea-stat-icon bg-blue"><el-icon><UserFilled /></el-icon></div>
+        <div class="vea-stat-content">
+          <div class="vea-stat-title">孩子数量</div>
+          <div class="vea-stat-value">{{ stats.children }}</div>
+          <div class="vea-stat-foot">家庭账号数</div>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-title">待完成</div>
-        <div class="stat-value">{{ pendingCount }}</div>
-        <div class="stat-foot">筛选结果</div>
+      <div class="vea-stat">
+        <div class="vea-stat-icon bg-orange"><el-icon><Clock /></el-icon></div>
+        <div class="vea-stat-content">
+          <div class="vea-stat-title">待完成</div>
+          <div class="vea-stat-value">{{ pendingCount }}</div>
+          <div class="vea-stat-foot">筛选结果</div>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-title">已完成</div>
-        <div class="stat-value">{{ completedCount }}</div>
-        <div class="stat-foot">筛选结果</div>
+      <div class="vea-stat">
+        <div class="vea-stat-icon bg-red"><el-icon><Checked /></el-icon></div>
+        <div class="vea-stat-content">
+          <div class="vea-stat-title">已完成</div>
+          <div class="vea-stat-value">{{ completedCount }}</div>
+          <div class="vea-stat-foot">筛选结果</div>
+        </div>
       </div>
     </section>
 
     <section class="card table-card">
+      <div class="table-info">
+        <div class="table-title">任务清单</div>
+        <div class="notice">当前 {{ total }} 条任务</div>
+      </div>
       <div class="permission-filter-bar">
         <div class="permission-filter">
           <div class="filter-item">
@@ -82,24 +98,20 @@
         </div>
       </div>
       <div class="table-head">
-        <div class="table-info">
-          <div class="table-title">任务清单</div>
-          <div class="notice">当前 {{ total }} 条任务</div>
-          <div class="table-actions left-actions">
-            <VeaButton class="btn-sm btn-soft success" @click="openCreateTask">
-              <span class="btn-icon"><el-icon><Plus /></el-icon></span>
-              新增任务
-            </VeaButton>
-            <VeaButton class="btn-sm btn-soft info" @click="openImportModal">
-              <span class="btn-icon"><el-icon><Upload /></el-icon></span>
-              导入
-            </VeaButton>
-            <VeaButton class="btn-sm btn-soft neutral" @click="exportTasks">
-              <span class="btn-icon"><el-icon><Download /></el-icon></span>
-              导出
-            </VeaButton>
-            <input ref="importInput" type="file" class="hidden-input" accept=".xlsx,.xls" @change="handleImportChange" />
-          </div>
+        <div class="table-actions left-actions">
+          <VeaButton class="btn-sm btn-soft success" @click="openCreateTask">
+            <span class="btn-icon"><el-icon><Plus /></el-icon></span>
+            新增任务
+          </VeaButton>
+          <VeaButton class="btn-sm btn-soft info" @click="openImportModal">
+            <span class="btn-icon"><el-icon><Upload /></el-icon></span>
+            导入
+          </VeaButton>
+          <VeaButton class="btn-sm btn-soft neutral" @click="exportTasks">
+            <span class="btn-icon"><el-icon><Download /></el-icon></span>
+            导出
+          </VeaButton>
+          <input ref="importInput" type="file" class="hidden-input" accept=".xlsx,.xls" @change="handleImportChange" />
         </div>
       </div>
       <div class="table-wrap">
@@ -195,158 +207,42 @@
       </div>
     </section>
 
-    <div v-if="showTaskModal" class="drawer-backdrop" @click="closeTaskModal">
-      <div class="drawer-panel" @click.stop>
-        <div class="drawer-header">
-          <div class="drawer-title">{{ formMode === 'create' ? '新增任务' : '修改任务' }}</div>
-          <VeaButton class="modal-close" @click="closeTaskModal" text>关闭</VeaButton>
-        </div>
-        <div class="drawer-body">
-          <div class="row">
-            <div>
-              <label>选择孩子</label>
-              <select v-model="taskForm.childId">
-                <option disabled value="">请选择</option>
-                <option v-for="child in children" :key="child.id" :value="child.id">{{ child.displayName }}</option>
-              </select>
-            </div>
-            <div>
-              <label>任务标题</label>
-              <input v-model="taskForm.title" placeholder="例如：完成数学作业" />
-            </div>
-          </div>
-          <div class="row" style="margin-top: 10px;">
-            <div>
-              <label>积分</label>
-              <input v-model.number="taskForm.points" type="number" />
-            </div>
-          </div>
-          <label style="margin-top: 10px;">描述</label>
-          <textarea v-model="taskForm.description" rows="3"></textarea>
-          <div class="upload-block">
-            <label>任务图片</label>
-            <div class="upload-row">
-              <input
-                ref="taskImageInput"
-                type="file"
-                class="hidden-input"
-                accept="image/*"
-                multiple
-                @change="handleTaskImageChange"
-              />
-              <VeaButton class="btn-sm btn-soft info" @click="triggerTaskImagePick">
-                <span class="btn-icon"><el-icon><Upload /></el-icon></span>
-                选择图片
-              </VeaButton>
-              <span class="notice" v-if="taskImageFiles.length">已选择 {{ taskImageFiles.length }} 张</span>
-            </div>
-            <div class="notice" v-if="formMode === 'edit' && existingTaskImages.length">
-              已有图片（新上传将追加）
-            </div>
-            <div class="image-thumbs" v-if="existingTaskImages.length">
-              <img
-                v-for="(img, idx) in existingTaskImages"
-                :key="img + idx"
-                :src="resolveImageUrl(img)"
-                class="thumb"
-                @click="openImagePreview(existingTaskImages, idx)"
-              />
-            </div>
-            <div class="image-thumbs" v-if="taskImagePreviews.length">
-              <div class="thumb-wrap" v-for="(img, idx) in taskImagePreviews" :key="img.url">
-                <img :src="img.url" class="thumb" />
-                <button type="button" class="thumb-remove" @click="removeTaskImage(idx)">×</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="drawer-footer">
-          <VeaButton class="secondary" @click="closeTaskModal" text>取消</VeaButton>
-          <VeaButton @click="saveTask">
-            <span class="btn-icon"><el-icon><Check /></el-icon></span>
-            保存
-          </VeaButton>
-        </div>
-      </div>
-    </div>
+    <TaskEditorDrawer
+      :visible="showTaskModal"
+      :form-mode="formMode"
+      :task-form="taskForm"
+      :children="children"
+      :existing-task-images="existingTaskImages"
+      :task-image-files-length="taskImageFiles.length"
+      :task-image-previews="taskImagePreviews"
+      :resolve-image-url="resolveImageUrl"
+      @close="closeTaskModal"
+      @save="saveTask"
+      @update:task-form="taskForm = $event"
+      @preview-images="openImagePreview"
+      @image-change="handleTaskImageChange"
+      @remove-task-image="removeTaskImage"
+    />
 
-    <div v-if="showDetailDrawer" class="drawer-backdrop" @click="closeDetailDrawer">
-      <div class="drawer-panel" @click.stop>
-        <div class="drawer-header">
-          <div class="drawer-title">任务明细</div>
-          <VeaButton class="modal-close" @click="closeDetailDrawer" text>关闭</VeaButton>
-        </div>
-        <div class="drawer-body">
-          <div class="detail-row">
-            <span class="detail-label">孩子</span>
-            <span class="detail-value">{{ detailTask ? childName(detailTask.childId) : '-' }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">任务标题</span>
-            <span class="detail-value">{{ detailTask?.title || '-' }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">描述</span>
-            <span class="detail-value">{{ detailTask?.description || '-' }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">开始时间</span>
-            <span class="detail-value">{{ formatDateTime(detailTask?.createdAt) }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">积分</span>
-            <span class="detail-value">{{ detailTask?.points ?? '-' }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">状态</span>
-            <span class="detail-value">{{ statusLabel(detailTask) }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">完成时间</span>
-            <span class="detail-value">{{ formatDateTime(detailTask?.completedAt) }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">打卡备注</span>
-            <span class="detail-value">{{ detailTask?.checkinNote || '-' }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">图片</span>
-            <div class="detail-images">
-              <div class="image-thumbs" v-if="detailTask?.images && detailTask.images.length">
-                <img
-                  v-for="(img, idx) in detailTask.images"
-                  :key="img + idx"
-                  :src="resolveImageUrl(img)"
-                  class="thumb"
-                  @click="openImagePreview(detailTask.images, idx)"
-                />
-              </div>
-              <span v-else class="notice">-</span>
-            </div>
-          </div>
-        </div>
-        <div class="drawer-footer">
-          <VeaButton class="secondary" @click="closeDetailDrawer" text>关闭</VeaButton>
-        </div>
-      </div>
-    </div>
+    <TaskDetailDrawer
+      :visible="showDetailDrawer"
+      :task="detailTask"
+      :child-name="childName"
+      :status-label="statusLabel"
+      :format-date-time="formatDateTime"
+      :resolve-image-url="resolveImageUrl"
+      @close="closeDetailDrawer"
+      @preview-images="openImagePreview"
+    />
 
-    <div v-if="showImagePreview" class="modal-backdrop" @click="closeImagePreview">
-      <div class="modal image-preview-modal" @click.stop>
-        <div class="modal-header">
-          <div class="modal-title">图片预览</div>
-          <VeaButton class="modal-close" @click="closeImagePreview" text>关闭</VeaButton>
-        </div>
-        <div class="modal-body">
-          <img v-if="previewImages.length" :src="previewImages[previewIndex]" class="preview-image" />
-        </div>
-        <div class="modal-footer">
-          <VeaButton class="secondary" :disabled="previewIndex <= 0" @click="prevImage" text>上一张</VeaButton>
-          <div class="notice">第 {{ previewIndex + 1 }} / {{ previewImages.length }} 张</div>
-          <VeaButton class="secondary" :disabled="previewIndex >= previewImages.length - 1" @click="nextImage" text>下一张</VeaButton>
-        </div>
-      </div>
-    </div>
+    <ImagePreviewModal
+      :visible="showImagePreview"
+      :images="previewImages"
+      :current-index="previewIndex"
+      @close="closeImagePreview"
+      @prev="prevImage"
+      @next="nextImage"
+    />
 
     <div v-if="showImportModal" class="modal-backdrop" @click="closeImportModal">
       <div class="modal import-modal" @click.stop>
@@ -385,24 +281,42 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
-import { Search, Refresh, Check, Delete, Plus, Edit, Upload, Download, View, Close } from '@element-plus/icons-vue'
+import { ref, onMounted, watch } from 'vue'
+import { Search, Refresh, Check, Delete, Plus, Edit, Upload, Download, View, Close, UserFilled, Calendar, Clock, Checked } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '../api'
+import { useImagePreview } from '../composables/useImagePreview'
+import { useParentTaskFilters } from '../composables/useParentTaskFilters'
 import { useParentStats } from '../composables/useParentStats'
+import { useTaskImageUpload } from '../composables/useTaskImageUpload'
 import VeaButton from '../components/VeaButton.vue'
+import ImagePreviewModal from '../components/common/ImagePreviewModal.vue'
+import TaskDetailDrawer from '../components/parent/TaskDetailDrawer.vue'
+import TaskEditorDrawer from '../components/parent/TaskEditorDrawer.vue'
+import { formatDateTime, resolveImageUrl as resolveApiImageUrl } from '../utils'
+import { downloadBlob } from '../utils/download'
 
 const children = ref([])
-const tasks = ref([])
-const total = ref(0)
-const statusFilter = ref('PENDING')
-const childFilter = ref('')
-const keyword = ref('')
-const startDate = ref('')
-const endDate = ref('')
-const pageSize = ref(10)
-const currentPage = ref(1)
 const { stats, refresh } = useParentStats()
+const {
+  tasks,
+  total,
+  pendingCount,
+  completedCount,
+  statusFilter,
+  childFilter,
+  keyword,
+  startDate,
+  endDate,
+  pageSize,
+  currentPage,
+  totalPages,
+  buildPageParams,
+  loadPage,
+  loadCounts,
+  applyFilters,
+  resetFilters
+} = useParentTaskFilters()
 const showTaskModal = ref(false)
 const formMode = ref('create')
 const importInput = ref(null)
@@ -411,13 +325,6 @@ const importFile = ref(null)
 const importFileName = ref('')
 const showDetailDrawer = ref(false)
 const detailTask = ref(null)
-const showImagePreview = ref(false)
-const previewImages = ref([])
-const previewIndex = ref(0)
-const taskImageInput = ref(null)
-const taskImageFiles = ref([])
-const taskImagePreviews = ref([])
-const existingTaskImages = ref([])
 const taskForm = ref({
   id: null,
   childId: '',
@@ -444,47 +351,6 @@ const loadAll = async () => {
   await loadPage()
 }
 
-const loadPage = async () => {
-  const params = new URLSearchParams()
-  params.append('page', String(currentPage.value))
-  params.append('size', String(pageSize.value))
-  params.append('status', statusFilter.value)
-  if (keyword.value) {
-    params.append('q', keyword.value)
-  }
-  if (startDate.value) {
-    params.append('startDate', startDate.value)
-  }
-  if (endDate.value) {
-    params.append('endDate', endDate.value)
-  }
-  if (childFilter.value) {
-    params.append('childId', childFilter.value)
-  }
-  const { data } = await api.get(`/parent/tasks/page?${params.toString()}`)
-  tasks.value = data.items || []
-  total.value = data.total || 0
-  const maxPage = Math.max(1, Math.ceil(total.value / pageSize.value))
-  if (currentPage.value > maxPage) {
-    currentPage.value = maxPage
-  }
-}
-
-const loadCounts = async () => {
-  const params = new URLSearchParams()
-  if (childFilter.value) params.append('childId', childFilter.value)
-  if (keyword.value) params.append('q', keyword.value)
-  if (startDate.value) params.append('startDate', startDate.value)
-  if (endDate.value) params.append('endDate', endDate.value)
-  const { data } = await api.get(`/parent/tasks/counts?${params.toString()}`)
-  pendingCount.value = data.pending || 0
-  completedCount.value = data.completed || 0
-}
-
-const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)))
-const pendingCount = ref(0)
-const completedCount = ref(0)
-
 const childName = (id) => {
   return children.value.find(c => c.id === id)?.displayName || '-'
 }
@@ -497,17 +363,32 @@ const statusLabel = (task) => {
   return task.status
 }
 
-const formatDateTime = (value) => {
-  if (!value) return '-'
-  return value.replace('T', ' ').slice(0, 16)
-}
+const resolveImageUrl = (url) => resolveApiImageUrl(api, url)
 
-const resolveImageUrl = (url) => {
-  if (!url) return ''
-  if (url.startsWith('http')) return url
-  const base = api.defaults.baseURL.replace(/\/api$/, '')
-  return `${base}${url.startsWith('/') ? '' : '/'}${url}`
-}
+const {
+  showImagePreview,
+  previewImages,
+  previewIndex,
+  openImagePreview,
+  closeImagePreview,
+  prevImage,
+  nextImage
+} = useImagePreview(resolveImageUrl)
+
+const {
+  taskImageFiles,
+  taskImagePreviews,
+  existingTaskImages,
+  resetTaskImageState,
+  handleTaskImageChange,
+  removeTaskImage,
+  uploadTaskImages,
+  setExistingTaskImages,
+  clearExistingTaskImages
+} = useTaskImageUpload({
+  api,
+  message: ElMessage
+})
 
 onMounted(loadAll)
 
@@ -520,22 +401,6 @@ watch([statusFilter, childFilter, pageSize], async () => {
 watch(currentPage, () => {
   loadPage()
 })
-
-const applyFilters = async () => {
-  currentPage.value = 1
-  await loadCounts()
-  await loadPage()
-}
-
-const resetFilters = async () => {
-  childFilter.value = ''
-  keyword.value = ''
-  startDate.value = ''
-  endDate.value = ''
-  statusFilter.value = 'PENDING'
-  pageSize.value = 10
-  await applyFilters()
-}
 
 const triggerImport = () => {
   if (importInput.value) {
@@ -552,21 +417,8 @@ const handleImportChange = async (event) => {
 }
 
 const exportTasks = async () => {
-  const params = new URLSearchParams()
-  if (childFilter.value) params.append('childId', childFilter.value)
-  if (statusFilter.value) params.append('status', statusFilter.value)
-  if (keyword.value) params.append('q', keyword.value)
-  if (startDate.value) params.append('startDate', startDate.value)
-  if (endDate.value) params.append('endDate', endDate.value)
-  const res = await api.get(`/parent/tasks/export?${params.toString()}`, { responseType: 'blob' })
-  const url = window.URL.createObjectURL(new Blob([res.data]))
-  const link = document.createElement('a')
-  link.href = url
-  link.download = `tasks-${new Date().toISOString().slice(0, 10)}.xlsx`
-  document.body.appendChild(link)
-  link.click()
-  link.remove()
-  window.URL.revokeObjectURL(url)
+  const res = await api.get(`/parent/tasks/export?${buildPageParams().toString()}`, { responseType: 'blob' })
+  downloadBlob(res.data, `tasks-${new Date().toISOString().slice(0, 10)}.xlsx`)
 }
 
 const openImportModal = () => {
@@ -600,14 +452,7 @@ const submitImport = async () => {
 
 const downloadTemplate = async () => {
   const res = await api.get('/parent/tasks/import-template', { responseType: 'blob' })
-  const url = window.URL.createObjectURL(new Blob([res.data]))
-  const link = document.createElement('a')
-  link.href = url
-  link.download = 'task-import-template.xlsx'
-  document.body.appendChild(link)
-  link.click()
-  link.remove()
-  window.URL.revokeObjectURL(url)
+  downloadBlob(res.data, 'task-import-template.xlsx')
 }
 
 const openCreateTask = () => {
@@ -620,7 +465,7 @@ const openCreateTask = () => {
     points: 0,
     createdAt: ''
   }
-  existingTaskImages.value = []
+  clearExistingTaskImages()
   resetTaskImageState()
   showTaskModal.value = true
 }
@@ -635,14 +480,14 @@ const openEditTask = (task) => {
     points: task.points ?? 0,
     createdAt: task.createdAt || ''
   }
-  existingTaskImages.value = Array.isArray(task.taskImages) ? task.taskImages : []
+  setExistingTaskImages(task.taskImages)
   resetTaskImageState()
   showTaskModal.value = true
 }
 
 const closeTaskModal = () => {
   showTaskModal.value = false
-  existingTaskImages.value = []
+  clearExistingTaskImages()
   resetTaskImageState()
 }
 
@@ -681,7 +526,7 @@ const saveTask = async () => {
   }
   showTaskModal.value = false
   resetTaskImageState()
-  existingTaskImages.value = []
+  clearExistingTaskImages()
   await loadCounts()
   await loadPage()
   refresh()
@@ -754,84 +599,6 @@ const closeDetailDrawer = () => {
   detailTask.value = null
 }
 
-const openImagePreview = (images, index = 0) => {
-  const list = Array.isArray(images) ? images.map(resolveImageUrl) : []
-  previewImages.value = list
-  previewIndex.value = Math.max(0, Math.min(index, list.length - 1))
-  showImagePreview.value = true
-}
-
-const closeImagePreview = () => {
-  showImagePreview.value = false
-  previewImages.value = []
-  previewIndex.value = 0
-}
-
-const prevImage = () => {
-  if (previewIndex.value > 0) previewIndex.value -= 1
-}
-
-const nextImage = () => {
-  if (previewIndex.value < previewImages.value.length - 1) previewIndex.value += 1
-}
-
-const triggerTaskImagePick = () => {
-  if (taskImageInput.value) {
-    taskImageInput.value.value = ''
-    taskImageInput.value.click()
-  }
-}
-
-const clearTaskImagePreviews = () => {
-  taskImagePreviews.value.forEach(item => URL.revokeObjectURL(item.url))
-  taskImagePreviews.value = []
-}
-
-const resetTaskImageState = () => {
-  clearTaskImagePreviews()
-  taskImageFiles.value = []
-  if (taskImageInput.value) {
-    taskImageInput.value.value = ''
-  }
-}
-
-const handleTaskImageChange = (event) => {
-  const files = Array.from(event?.target?.files || [])
-  if (!files.length) return
-  const nextFiles = []
-  const nextPreviews = []
-  for (const file of files) {
-    if (!file.type || !file.type.startsWith('image/')) {
-      ElMessage.warning('仅支持图片文件')
-      continue
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      ElMessage.warning('图片大小不能超过 10MB')
-      continue
-    }
-    nextFiles.push(file)
-    nextPreviews.push({ url: URL.createObjectURL(file), name: file.name })
-  }
-  if (!nextFiles.length) return
-  clearTaskImagePreviews()
-  taskImageFiles.value = nextFiles
-  taskImagePreviews.value = nextPreviews
-}
-
-const removeTaskImage = (index) => {
-  const removed = taskImagePreviews.value.splice(index, 1)
-  if (removed.length) URL.revokeObjectURL(removed[0].url)
-  taskImageFiles.value.splice(index, 1)
-}
-
-const uploadTaskImages = async (taskId) => {
-  if (!taskImageFiles.value.length) return
-  const formData = new FormData()
-  taskImageFiles.value.forEach(file => formData.append('files', file))
-  await api.post(`/parent/tasks/${taskId}/images`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  })
-}
 </script>
 
 <style scoped>

@@ -1,55 +1,194 @@
+const mergeXyConfig = (base, overrides = {}) => {
+  const merged = { ...base, ...overrides }
+
+  if (base.chart || overrides.chart) {
+    merged.chart = { ...(base.chart || {}), ...(overrides.chart || {}) }
+  }
+
+  if (base.chart?.userOptions || overrides.chart?.userOptions) {
+    merged.chart.userOptions = {
+      ...(base.chart?.userOptions || {}),
+      ...(overrides.chart?.userOptions || {})
+    }
+  }
+
+  if (base.chart?.userOptions?.buttons || overrides.chart?.userOptions?.buttons) {
+    merged.chart.userOptions.buttons = {
+      ...(base.chart?.userOptions?.buttons || {}),
+      ...(overrides.chart?.userOptions?.buttons || {})
+    }
+  }
+
+  if (base.chart?.zoom || overrides.chart?.zoom) {
+    merged.chart.zoom = { ...(base.chart?.zoom || {}), ...(overrides.chart?.zoom || {}) }
+  }
+
+  if (base.chart?.zoom?.preview || overrides.chart?.zoom?.preview) {
+    merged.chart.zoom.preview = {
+      ...(base.chart?.zoom?.preview || {}),
+      ...(overrides.chart?.zoom?.preview || {})
+    }
+  }
+
+  if (base.chart?.grid || overrides.chart?.grid) {
+    merged.chart.grid = { ...(base.chart?.grid || {}), ...(overrides.chart?.grid || {}) }
+  }
+
+  if (base.chart?.grid?.labels || overrides.chart?.grid?.labels) {
+    merged.chart.grid.labels = {
+      ...(base.chart?.grid?.labels || {}),
+      ...(overrides.chart?.grid?.labels || {})
+    }
+  }
+
+  if (base.chart?.grid?.labels?.xAxisLabels || overrides.chart?.grid?.labels?.xAxisLabels) {
+    merged.chart.grid.labels.xAxisLabels = {
+      ...(base.chart?.grid?.labels?.xAxisLabels || {}),
+      ...(overrides.chart?.grid?.labels?.xAxisLabels || {})
+    }
+  }
+
+  if (base.chart?.grid?.labels?.yAxis || overrides.chart?.grid?.labels?.yAxis) {
+    merged.chart.grid.labels.yAxis = {
+      ...(base.chart?.grid?.labels?.yAxis || {}),
+      ...(overrides.chart?.grid?.labels?.yAxis || {})
+    }
+  }
+
+  if (base.chart?.grid?.labels?.xAxis || overrides.chart?.grid?.labels?.xAxis) {
+    merged.chart.grid.labels.xAxis = {
+      ...(base.chart?.grid?.labels?.xAxis || {}),
+      ...(overrides.chart?.grid?.labels?.xAxis || {})
+    }
+  }
+
+  if (base.chart?.tooltip || overrides.chart?.tooltip) {
+    merged.chart.tooltip = { ...(base.chart?.tooltip || {}), ...(overrides.chart?.tooltip || {}) }
+  }
+
+  if (base.chart?.legend || overrides.chart?.legend) {
+    merged.chart.legend = { ...(base.chart?.legend || {}), ...(overrides.chart?.legend || {}) }
+  }
+
+  if (base.bar || overrides.bar) {
+    merged.bar = { ...(base.bar || {}), ...(overrides.bar || {}) }
+  }
+
+  return merged
+}
+
 export const makeXyConfig = (labels = [], overrides = {}) => {
   const normalizedLabels = Array.isArray(labels) ? labels : []
   const dense = normalizedLabels.length > 8
+  const extraDense = normalizedLabels.length > 16
+  const sparseBar = normalizedLabels.length <= 2
+  const fewBars = normalizedLabels.length > 2 && normalizedLabels.length <= 5
+
   const base = {
     responsive: true,
-    useCssAnimation: true,
+    useCssAnimation: false,
+    bar: {
+      borderRadius: 6,
+      periodGap: sparseBar ? 0.38 : fewBars ? 0.24 : 0.12,
+      innerGap: 0.08
+    },
     chart: {
+      fontFamily: 'inherit',
       backgroundColor: 'transparent',
-      height: 220,
-      padding: { top: 12, right: 14, bottom: 28, left: 44 },
-      labels: {
-        color: '#606266',
-        xAxisLabels: {
+      color: '#334155',
+      height: 256,
+      padding: { top: 18, right: 22, bottom: dense ? 42 : 32, left: 52 },
+      userOptions: {
+        show: false,
+        showOnChartHover: false,
+        keepStateOnChartLeave: false,
+        buttons: {
+          zoom: false,
+          table: false,
+          tooltip: false,
+          labels: false,
+          csv: false,
+          img: false,
+          pdf: false,
+          svg: false,
+          annotator: false,
+          animation: false,
+          fullscreen: false,
+          stack: false,
+          sort: false
+        }
+      },
+      zoom: {
+        show: false,
+        enableRangeHandles: false,
+        enableSelectionDrag: false,
+        preview: {
+          enable: false
+        }
+      },
+      highlighter: {
+        color: '#2563eb',
+        opacity: 0,
+        useLine: true,
+        lineWidth: 1,
+        lineDasharray: 4
+      },
+      grid: {
+        stroke: 'rgba(148, 163, 184, 0.28)',
+        showHorizontalLines: true,
+        showVerticalLines: false,
+        labels: {
           show: true,
-          values: normalizedLabels,
-          color: '#909399',
-          fontSize: 11,
-          showOnlyAtModulo: dense,
-          modulo: dense ? 2 : 1
-        },
-        yAxis: {
-          useNiceScale: true,
-          gap: 12,
-          labelWidth: 32,
-          rounding: 0
+          color: '#64748b',
+          fontSize: 12,
+          xAxis: {
+            showBaseline: true,
+            showCrosshairs: false
+          },
+          xAxisLabels: {
+            show: true,
+            values: normalizedLabels,
+            color: '#94a3b8',
+            fontSize: 11,
+            rotation: dense ? -28 : 0,
+            yOffset: dense ? 10 : 0,
+            showOnlyAtModulo: dense,
+            modulo: extraDense ? 3 : 2
+          },
+          yAxis: {
+            commonScaleSteps: 4,
+            useIndividualScale: false,
+            useNiceScale: true,
+            gap: 12,
+            labelWidth: 36,
+            rounding: 0,
+            showBaseline: true
+          }
         }
-      }
-    },
-    legend: {
-      show: false
-    },
-  }
-  const merged = { ...base, ...overrides }
-  if (overrides.chart) {
-    merged.chart = { ...base.chart, ...overrides.chart }
-    if (overrides.chart.labels) {
-      merged.chart.labels = { ...base.chart.labels, ...overrides.chart.labels }
-      if (overrides.chart.labels.xAxisLabels) {
-        merged.chart.labels.xAxisLabels = {
-          ...base.chart.labels.xAxisLabels,
-          ...overrides.chart.labels.xAxisLabels
-        }
-      }
-      if (overrides.chart.labels.yAxis) {
-        merged.chart.labels.yAxis = {
-          ...base.chart.labels.yAxis,
-          ...overrides.chart.labels.yAxis
-        }
+      },
+      tooltip: {
+        show: true,
+        backgroundColor: '#fffbff',
+        color: '#1f2937',
+        borderColor: '#dbe5f0',
+        borderWidth: 1,
+        borderRadius: 12,
+        fontSize: 12,
+        backgroundOpacity: 100,
+        smooth: false,
+        backdropFilter: false,
+        offsetY: 8
+      },
+      legend: {
+        show: false,
+        position: 'bottom',
+        color: '#475569',
+        fontSize: 12
       }
     }
   }
-  return merged
+
+  return mergeXyConfig(base, overrides)
 }
 
 export const donutConfig = {
@@ -72,6 +211,26 @@ export const donutConfig = {
     show: false
   }
 }
+
+export const makeBarSeries = (name, values, color, extra = {}) => ([{
+  name,
+  type: 'bar',
+  color,
+  dataLabels: false,
+  series: Array.isArray(values) ? values.map(value => value ?? 0) : [],
+  ...extra
+}])
+
+export const makeLineSeries = (name, values, color, extra = {}) => ([{
+  name,
+  type: 'line',
+  color,
+  dataLabels: false,
+  smooth: true,
+  showSerieName: 'end',
+  series: Array.isArray(values) ? values.map(value => value ?? 0) : [],
+  ...extra
+}])
 
 export const makeMultiColorSeries = (labels, values, baseName, palette = []) => {
   const safeLabels = Array.isArray(labels) ? labels : []

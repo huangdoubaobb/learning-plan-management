@@ -1,6 +1,11 @@
-<template>
+﻿<template>
   <div class="container">
-    <div class="header"></div>
+    <div class="header">
+      <div>
+        <h2>角色管理</h2>
+        <div class="notice">管理角色信息与权限分配</div>
+      </div>
+    </div>
 
     <div class="vea-stat-grid">
       <div class="vea-stat">
@@ -8,7 +13,7 @@
         <div class="vea-stat-content">
           <div class="vea-stat-title">角色数量</div>
           <div class="vea-stat-value">{{ roles.length }}</div>
-          <div class="vea-stat-foot">系统角色数量</div>
+          <div class="vea-stat-foot">系统角色总数</div>
         </div>
       </div>
       <div class="vea-stat">
@@ -16,13 +21,13 @@
         <div class="vea-stat-content">
           <div class="vea-stat-title">权限数量</div>
           <div class="vea-stat-value">{{ permissions.length }}</div>
-          <div class="vea-stat-foot">可分配权限数量</div>
+          <div class="vea-stat-foot">可分配权限总数</div>
         </div>
       </div>
       <div class="vea-stat">
         <div class="vea-stat-icon bg-green"><el-icon><Checked /></el-icon></div>
         <div class="vea-stat-content">
-          <div class="vea-stat-title">选中角色权限</div>
+          <div class="vea-stat-title">当前选中权限</div>
           <div class="vea-stat-value">{{ selectedRole?.permissionIds?.length || 0 }}</div>
           <div class="vea-stat-foot">当前角色权限数量</div>
         </div>
@@ -37,17 +42,28 @@
         <div class="vea-toolbar">
           <div class="vea-toolbar-left">
             <span class="filter-label">关键词：</span>
-            <el-input v-model="filters.keyword" size="small" placeholder="搜索角色/代码" clearable style="width: 180px;" />
-            <span class="filter-label">时间：</span>
+            <el-input v-model="filters.keyword" size="small" placeholder="搜索角色/编码" clearable style="width: 180px;" />
+            <span class="filter-label">开始：</span>
             <el-date-picker
-              v-model="filters.dateRange"
+              v-model="filters.startDate"
               size="small"
-              type="daterange"
-              range-separator="至"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
+              type="date"
               value-format="YYYY-MM-DD"
-              style="width: 260px;"
+              placeholder="开始日期"
+              clearable
+              :disabled-date="disableStartDate"
+              style="width: 150px;"
+            />
+            <span class="filter-label">结束：</span>
+            <el-date-picker
+              v-model="filters.endDate"
+              size="small"
+              type="date"
+              value-format="YYYY-MM-DD"
+              placeholder="结束日期"
+              clearable
+              :disabled-date="disableEndDate"
+              style="width: 150px;"
             />
           </div>
           <div class="vea-toolbar-right">
@@ -76,7 +92,7 @@
               </th>
               <th style="width: 60px;">序号</th>
               <th>角色</th>
-              <th>代码</th>
+              <th>编码</th>
               <th>权限数量</th>
               <th>操作</th>
             </tr>
@@ -131,11 +147,11 @@
         </div>
         <div class="drawer-body">
           <el-form label-width="90px">
-            <el-form-item label="角色代码">
-              <el-input v-model="newRole.code" placeholder="例如:EDITOR" :disabled="roleMode === 'edit'" />
+            <el-form-item label="角色编码">
+              <el-input v-model="newRole.code" placeholder="例如：EDITOR" :disabled="roleMode === 'edit'" />
             </el-form-item>
             <el-form-item label="角色名称">
-              <el-input v-model="newRole.name" placeholder="例如:数据管理员" />
+              <el-input v-model="newRole.name" placeholder="例如：数据管理员" />
             </el-form-item>
           </el-form>
         </div>
@@ -183,14 +199,27 @@ import { Plus, Key, Edit, Delete, Check, User, Lock, Checked, Search, Refresh, D
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '../api'
 import { can, setPermissions } from '../permissions'
+import { getRole } from '../utils/authStorage'
 import VeaButton from '../components/VeaButton.vue'
+import { downloadCsv } from '../utils'
 
 const roles = ref([])
 const permissions = ref([])
 const filters = ref({
   keyword: '',
-  dateRange: []
+  startDate: '',
+  endDate: ''
 })
+const disableStartDate = (date) => {
+  if (!filters.value.endDate) return false
+  return date.getTime() > new Date(filters.value.endDate).getTime()
+}
+
+const disableEndDate = (date) => {
+  if (!filters.value.startDate) return false
+  return date.getTime() < new Date(filters.value.startDate).getTime()
+}
+
 const newRole = ref({ code: '', name: '' })
 const roleMode = ref('create')
 const editingRoleId = ref(null)
@@ -198,6 +227,10 @@ const selectedRole = ref(null)
 const selectedPermissionIds = ref([])
 const selectedRoleIds = ref([])
 const permissionTreeRef = ref(null)
+const showRoleModal = ref(false)
+const showPermissionDrawer = ref(false)
+const pageSize = ref(10)
+const currentPage = ref(1)
 
 const pageRoleIds = computed(() => pagedRoles.value.map(r => r.id))
 const pageSelectedCount = computed(() => pageRoleIds.value.filter(id => selectedRoleIds.value.includes(id)).length)
@@ -213,10 +246,6 @@ const toggleSelectAll = (val) => {
   }
   selectedRoleIds.value = Array.from(set)
 }
-const showRoleModal = ref(false)
-const showPermissionDrawer = ref(false)
-const pageSize = ref(10)
-const currentPage = ref(1)
 
 const actionLabelMap = {
   create: '创建',
@@ -276,9 +305,14 @@ const permissionTree = computed(() => {
   return Array.from(map.values())
 })
 
+const syncSelectedRoles = () => {
+  const validIds = new Set(filteredRoles.value.map(role => role.id))
+  selectedRoleIds.value = selectedRoleIds.value.filter(id => validIds.has(id))
+}
+
 const loadAll = async () => {
   const params = {}
-  const [startDate, endDate] = filters.value.dateRange || []
+  const { startDate, endDate } = filters.value
   if (startDate) params.startDate = startDate
   if (endDate) params.endDate = endDate
   const [roleRes, permRes] = await Promise.all([
@@ -288,6 +322,7 @@ const loadAll = async () => {
   roles.value = roleRes.data
   permissions.value = permRes.data
   clampPage()
+  syncSelectedRoles()
 }
 
 const selectRole = (role) => {
@@ -320,7 +355,7 @@ const saveRole = async () => {
     return
   }
   try {
-    await ElMessageBox.confirm('确认保存吗?', '提示', {
+    await ElMessageBox.confirm('确认保存吗？', '提示', {
       type: 'warning',
       confirmButtonText: '确认',
       cancelButtonText: '取消'
@@ -362,7 +397,7 @@ const closeRoleModal = () => {
 
 const removeRole = async (role) => {
   try {
-    await ElMessageBox.confirm(`确认删除角色 ${role.name} 吗?`, '提示', {
+    await ElMessageBox.confirm(`确认删除角色 ${role.name} 吗？`, '提示', {
       type: 'warning',
       confirmButtonText: '确认',
       cancelButtonText: '取消'
@@ -378,7 +413,7 @@ const removeRole = async (role) => {
 const batchRemove = async () => {
   if (!selectedRoleIds.value.length) return
   try {
-    await ElMessageBox.confirm(`确认删除选中的 ${selectedRoleIds.value.length} 个角色吗?`, '提示', {
+    await ElMessageBox.confirm(`确认删除选中的 ${selectedRoleIds.value.length} 个角色吗？`, '提示', {
       type: 'warning',
       confirmButtonText: '确认',
       cancelButtonText: '取消'
@@ -395,15 +430,10 @@ const batchRemove = async () => {
 }
 
 const exportRoles = async () => {
-  const header = '\u89d2\u8272\u540d\u79f0,\u7f16\u7801,\u6743\u9650\u6570\u91cf'
+  const header = '角色名称,编码,权限数量'
   const rows = filteredRoles.value.map(row => `${row.name},${row.code},${row.permissionIds.length}`)
-  const csv = [header, ...rows].join('\n')
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-  const link = document.createElement('a')
-  link.href = URL.createObjectURL(blob)
-  link.download = `roles-${new Date().toISOString().slice(0, 10)}.csv`
-  link.click()
-  URL.revokeObjectURL(link.href)
+  downloadCsv([header, ...rows], `roles-${new Date().toISOString().slice(0, 10)}.csv`)
+  ElMessage.success('导出成功')
 }
 
 const savePermissions = async () => {
@@ -412,7 +442,7 @@ const savePermissions = async () => {
     permissionIds: selectedPermissionIds.value
   })
   ElMessage.success('保存成功')
-  const currentRole = localStorage.getItem('role')
+  const currentRole = getRole()
   if (currentRole && selectedRole.value.code === currentRole) {
     try {
       const { data } = await api.get('/auth/me')
@@ -435,7 +465,6 @@ const filteredRoles = computed(() => {
   })
 })
 
-const totalPages = computed(() => Math.max(1, Math.ceil(filteredRoles.value.length / pageSize.value)))
 const pagedRoles = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value
   return filteredRoles.value.slice(start, start + pageSize.value)
@@ -450,11 +479,17 @@ watch([roles, pageSize], () => {
   clampPage()
 })
 
+watch(filteredRoles, () => {
+  currentPage.value = 1
+  syncSelectedRoles()
+})
+
 onMounted(loadAll)
 
 const resetFilters = () => {
   filters.value.keyword = ''
-  filters.value.dateRange = []
+  filters.value.startDate = ''
+  filters.value.endDate = ''
   loadAll()
 }
 </script>

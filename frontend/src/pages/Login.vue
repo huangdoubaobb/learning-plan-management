@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="container">
     <div class="header auth-header">
       <div>
@@ -13,16 +13,16 @@
             <div class="auth-emblem">
               <svg class="auth-sun" viewBox="0 0 64 64" aria-hidden="true">
                 <g>
-                  <circle class="sun-core" cx="32" cy="32" r="12"/>
+                  <circle class="sun-core" cx="32" cy="32" r="12" />
                   <g class="sun-rays">
-                    <line x1="32" y1="6" x2="32" y2="16"/>
-                    <line x1="32" y1="48" x2="32" y2="58"/>
-                    <line x1="6" y1="32" x2="16" y2="32"/>
-                    <line x1="48" y1="32" x2="58" y2="32"/>
-                    <line x1="12" y1="12" x2="19" y2="19"/>
-                    <line x1="45" y1="45" x2="52" y2="52"/>
-                    <line x1="12" y1="52" x2="19" y2="45"/>
-                    <line x1="45" y1="19" x2="52" y2="12"/>
+                    <line x1="32" y1="6" x2="32" y2="16" />
+                    <line x1="32" y1="48" x2="32" y2="58" />
+                    <line x1="6" y1="32" x2="16" y2="32" />
+                    <line x1="48" y1="32" x2="58" y2="32" />
+                    <line x1="12" y1="12" x2="19" y2="19" />
+                    <line x1="45" y1="45" x2="52" y2="52" />
+                    <line x1="12" y1="52" x2="19" y2="45" />
+                    <line x1="45" y1="19" x2="52" y2="12" />
                   </g>
                 </g>
               </svg>
@@ -42,8 +42,8 @@
               <div class="notice error" v-if="error">{{ error }}</div>
               <div class="auth-fields">
                 <div>
-              <label>账号或手机号</label>
-              <input v-model="loginForm.username" placeholder="请输入账号或手机号" />
+                  <label>账号或手机号</label>
+                  <input v-model="loginForm.username" placeholder="请输入账号或手机号" />
                 </div>
                 <div>
                   <label>密码</label>
@@ -51,9 +51,9 @@
                     <input v-model="loginForm.password" :type="showLoginPassword ? 'text' : 'password'" placeholder="请输入密码" />
                     <VeaButton class="auth-eye" text native-type="button" @click="showLoginPassword = !showLoginPassword">
                       <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/>
-                        <circle cx="12" cy="12" r="3.2"/>
-                        <path v-if="!showLoginPassword" d="M4 4l16 16"/>
+                        <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" />
+                        <circle cx="12" cy="12" r="3.2" />
+                        <path v-if="!showLoginPassword" d="M4 4l16 16" />
                       </svg>
                     </VeaButton>
                   </div>
@@ -73,30 +73,30 @@
               <div class="notice error" v-if="error">{{ error }}</div>
               <div class="auth-fields">
                 <div>
-              <label>账号</label>
-              <input v-model="registerForm.username" placeholder="家长账号" />
-            </div>
-            <div>
-              <label>密码</label>
+                  <label>账号</label>
+                  <input v-model="registerForm.username" placeholder="家长账号" />
+                </div>
+                <div>
+                  <label>密码</label>
                   <div class="auth-input-wrap">
                     <input v-model="registerForm.password" :type="showRegisterPassword ? 'text' : 'password'" placeholder="设置密码" />
                     <VeaButton class="auth-eye" text native-type="button" @click="showRegisterPassword = !showRegisterPassword">
                       <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/>
-                        <circle cx="12" cy="12" r="3.2"/>
-                        <path v-if="!showRegisterPassword" d="M4 4l16 16"/>
+                        <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" />
+                        <circle cx="12" cy="12" r="3.2" />
+                        <path v-if="!showRegisterPassword" d="M4 4l16 16" />
                       </svg>
                     </VeaButton>
                   </div>
-            </div>
-            <div>
-              <label>手机号</label>
-              <input v-model="registerForm.phone" placeholder="请输入手机号" />
-            </div>
-            <div>
-              <label>显示名称</label>
-              <input v-model="registerForm.displayName" placeholder="例如：李妈妈" />
-            </div>
+                </div>
+                <div>
+                  <label>手机号</label>
+                  <input v-model="registerForm.phone" placeholder="请输入手机号" />
+                </div>
+                <div>
+                  <label>显示名称</label>
+                  <input v-model="registerForm.displayName" placeholder="例如：李妈妈" />
+                </div>
               </div>
               <div style="margin-top: 16px;">
                 <VeaButton class="auth-primary" type="primary" @click="handleRegister">注册并进入</VeaButton>
@@ -114,11 +114,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../api'
 import { setPermissions } from '../permissions'
 import VeaButton from '../components/VeaButton.vue'
+import { setAuthSession } from '../utils/authStorage'
 
 const router = useRouter()
 const error = ref('')
@@ -126,6 +127,7 @@ const mode = ref('login')
 const showLoginPassword = ref(false)
 const showRegisterPassword = ref(false)
 const bgSources = Object.values(import.meta.glob('../assets/login/*.{png,jpg,jpeg,webp,avif}', { eager: true, import: 'default' }))
+
 const bgStyle = computed(() => {
   if (!bgSources.length) return {}
   const shuffled = [...bgSources].sort(() => Math.random() - 0.5)
@@ -149,17 +151,11 @@ const registerForm = ref({
   displayName: ''
 })
 
-const clearOverlays = () => {
-  document.querySelectorAll('.drawer-backdrop, .el-overlay, .el-overlay-message-box').forEach((el) => el.remove())
-  document.body.classList.remove('el-popup-parent--hidden')
-  document.body.style.removeProperty('overflow')
-}
-
 const normalizeErrorMessage = (raw, fallback) => {
   if (!raw) return fallback
   const msg = typeof raw === 'string' ? raw : (raw.message || raw.error || '')
   if (!msg) return fallback
-  if (msg.includes('�') || /Ã.|â.|æ.|å.|ä.|ç.|ð.|ñ./.test(msg)) return fallback
+  if (msg.includes('锟') || /脙.|芒.|忙.|氓.|盲.|莽.|冒.|帽./.test(msg)) return fallback
   return msg
 }
 
@@ -167,10 +163,11 @@ const loadPermissions = async () => {
   try {
     const { data } = await api.get('/auth/me')
     setPermissions(data.permissions || [])
-  } catch (err) {
+  } catch {
     setPermissions([])
   }
 }
+
 const redirectByRole = (role) => {
   if (role === 'ADMIN') router.push('/admin/roles')
   else if (role === 'PARENT') router.push('/parent/children')
@@ -181,9 +178,7 @@ const handleLogin = async () => {
   error.value = ''
   try {
     const { data } = await api.post('/auth/login', loginForm.value)
-    localStorage.setItem('token', data.token)
-    localStorage.setItem('role', data.role)
-    localStorage.setItem('displayName', data.displayName || '')
+    setAuthSession(data)
     await loadPermissions()
     redirectByRole(data.role)
   } catch (err) {
@@ -195,19 +190,13 @@ const handleRegister = async () => {
   error.value = ''
   try {
     const { data } = await api.post('/auth/register-parent', registerForm.value)
-    localStorage.setItem('token', data.token)
-    localStorage.setItem('role', data.role)
-    localStorage.setItem('displayName', data.displayName || '')
+    setAuthSession(data)
     await loadPermissions()
     redirectByRole(data.role)
   } catch (err) {
     error.value = normalizeErrorMessage(err?.response?.data, '注册失败')
   }
 }
-
-onMounted(() => {
-  clearOverlays()
-})
 </script>
 
 <style scoped>
@@ -377,36 +366,6 @@ onMounted(() => {
   overflow: hidden;
 }
 
-.auth-meta {
-  display: grid;
-  gap: 12px;
-  margin-top: auto;
-}
-
-.auth-meta-item {
-  padding: 8px 10px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(28, 27, 34, 0.08);
-}
-
-.auth-meta-label {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.auth-meta-value {
-  font-weight: 600;
-  margin-top: 4px;
-}
-
-.auth-note {
-  font-size: 12px;
-  color: var(--muted);
-  border-top: 1px dashed rgba(28, 27, 34, 0.12);
-  padding-top: 12px;
-}
-
 .auth-card {
   background: var(--card);
   border-radius: var(--radius);
@@ -435,11 +394,6 @@ onMounted(() => {
   text-align: center;
   font-size: 22px;
   color: #1e3a8a !important;
-}
-
-.auth-segment {
-  margin-bottom: 16px;
-  width: fit-content;
 }
 
 .auth-fields {

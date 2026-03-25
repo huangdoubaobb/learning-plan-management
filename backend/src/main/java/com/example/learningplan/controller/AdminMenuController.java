@@ -10,25 +10,33 @@ import com.example.learningplan.entity.SysRoleMenu;
 import com.example.learningplan.repository.RoleRepository;
 import com.example.learningplan.repository.SysMenuRepository;
 import com.example.learningplan.repository.SysRoleMenuRepository;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.transaction.Transactional;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.transaction.Transactional;
-import javax.validation.Valid;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin/menus")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminMenuController {
+    private static final String RECORD_NOT_FOUND = "Record not found";
+
     private final SysMenuRepository sysMenuRepository;
     private final SysRoleMenuRepository sysRoleMenuRepository;
     private final RoleRepository roleRepository;
@@ -43,11 +51,7 @@ public class AdminMenuController {
     @GetMapping
     public List<SysMenuView> listMenus(@RequestParam(required = false) String startDate,
                                        @RequestParam(required = false) String endDate) {
-        DateRange range = DateRange.from(startDate, endDate);
-        List<SysMenu> menus = range == null
-            ? sysMenuRepository.findAllByOrderBySortOrderAscIdAsc()
-            : sysMenuRepository.findAllByCreatedAtBetweenOrderBySortOrderAscIdAsc(range.start, range.end);
-        return menus.stream()
+        return loadMenus(startDate, endDate).stream()
             .map(menu -> new SysMenuView(
                 menu.getId(),
                 menu.getParentId(),
@@ -68,11 +72,7 @@ public class AdminMenuController {
     @GetMapping("/tree")
     public List<SysMenuTreeNode> listMenuTree(@RequestParam(required = false) String startDate,
                                               @RequestParam(required = false) String endDate) {
-        DateRange range = DateRange.from(startDate, endDate);
-        List<SysMenu> menus = range == null
-            ? sysMenuRepository.findAllByOrderBySortOrderAscIdAsc()
-            : sysMenuRepository.findAllByCreatedAtBetweenOrderBySortOrderAscIdAsc(range.start, range.end);
-        return buildTree(menus, 0L);
+        return buildTree(loadMenus(startDate, endDate), 0L);
     }
 
     @PostMapping
@@ -87,7 +87,8 @@ public class AdminMenuController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateMenu(@PathVariable Long id, @Valid @RequestBody SysMenuRequest request) {
-        SysMenu menu = sysMenuRepository.findById(id).orElseThrow(() -> new IllegalStateException("Not found"));
+        SysMenu menu = sysMenuRepository.findById(id)
+            .orElseThrow(() -> new IllegalStateException(RECORD_NOT_FOUND));
         applyRequest(menu, request);
         sysMenuRepository.save(menu);
         return ResponseEntity.ok().build();
@@ -109,17 +110,25 @@ public class AdminMenuController {
     @PutMapping("/role/{roleId}")
     @Transactional
     public ResponseEntity<?> updateRoleMenus(@PathVariable Long roleId, @Valid @RequestBody RoleMenusRequest request) {
-        Role role = roleRepository.findById(roleId).orElseThrow(() -> new IllegalStateException("Not found"));
+        Role role = roleRepository.findById(roleId)
+            .orElseThrow(() -> new IllegalStateException(RECORD_NOT_FOUND));
         sysRoleMenuRepository.deleteByRoleId(role.getId());
         if (request.getMenuIds() != null) {
             for (Long menuId : request.getMenuIds()) {
-                SysRoleMenu rm = new SysRoleMenu();
-                rm.setRoleId(role.getId());
-                rm.setMenuId(menuId);
-                sysRoleMenuRepository.save(rm);
+                SysRoleMenu roleMenu = new SysRoleMenu();
+                roleMenu.setRoleId(role.getId());
+                roleMenu.setMenuId(menuId);
+                sysRoleMenuRepository.save(roleMenu);
             }
         }
         return ResponseEntity.ok().build();
+    }
+
+    private List<SysMenu> loadMenus(String startDate, String endDate) {
+        ControllerDateRange range = ControllerDateRange.from(startDate, endDate);
+        return range == null
+            ? sysMenuRepository.findAllByOrderBySortOrderAscIdAsc()
+            : sysMenuRepository.findAllByCreatedAtBetweenOrderBySortOrderAscIdAsc(range.start, range.end);
     }
 
     private void applyRequest(SysMenu menu, SysMenuRequest request) {
@@ -140,7 +149,7 @@ public class AdminMenuController {
         Map<Long, List<SysMenu>> childrenMap = new HashMap<>();
         for (SysMenu menu : menus) {
             Long parentId = menu.getParentId() == null ? 0L : menu.getParentId();
-            childrenMap.computeIfAbsent(parentId, k -> new ArrayList<>()).add(menu);
+            childrenMap.computeIfAbsent(parentId, key -> new ArrayList<>()).add(menu);
         }
         return buildChildren(childrenMap, rootId);
     }
@@ -168,36 +177,5 @@ public class AdminMenuController {
             nodes.add(node);
         }
         return nodes;
-    }
-
-    private static class DateRange {
-        private final LocalDateTime start;
-        private final LocalDateTime end;
-
-        private DateRange(LocalDateTime start, LocalDateTime end) {
-            this.start = start;
-            this.end = end;
-        }
-
-        static DateRange from(String startDate, String endDate) {
-            if ((startDate == null || startDate.trim().isEmpty()) && (endDate == null || endDate.trim().isEmpty())) {
-                return null;
-            }
-            LocalDateTime start = null;
-            LocalDateTime end = null;
-            if (startDate != null && !startDate.trim().isEmpty()) {
-                start = LocalDate.parse(startDate.trim()).atStartOfDay();
-            }
-            if (endDate != null && !endDate.trim().isEmpty()) {
-                end = LocalDate.parse(endDate.trim()).atTime(LocalTime.MAX);
-            }
-            if (start == null) {
-                start = LocalDate.of(2000, 1, 1).atStartOfDay();
-            }
-            if (end == null) {
-                end = LocalDateTime.now();
-            }
-            return new DateRange(start, end);
-        }
     }
 }

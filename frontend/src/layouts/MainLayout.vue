@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <el-container class="layout-root vea-layout">
     <el-aside :width="asideWidth" class="layout-aside vea-aside">
       <div class="brand vea-logo">
@@ -71,10 +71,10 @@
           <el-input v-model="profileForm.phone" placeholder="请输入手机号" />
         </el-form-item>
         <el-form-item label="新密码">
-          <el-input v-model="profileForm.password" type="password" placeholder="不改请留空" />
+          <el-input v-model="profileForm.password" type="password" placeholder="不修改请留空" show-password />
         </el-form-item>
         <el-form-item label="确认密码">
-          <el-input v-model="profileForm.passwordConfirm" type="password" placeholder="再次输入新密码" />
+          <el-input v-model="profileForm.passwordConfirm" type="password" placeholder="再次输入新密码" show-password />
         </el-form-item>
         <el-form-item label="最近登录">
           <el-input :value="formatDateTime(profileForm.lastLoginAt)" disabled />
@@ -89,19 +89,28 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ArrowDown, Expand, Fold, Check } from '@element-plus/icons-vue'
+import { ArrowDown, Check, Expand, Fold } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import Sidebar from '../components/Sidebar.vue'
 import TagsView from '../components/TagsView.vue'
 import VeaButton from '../components/VeaButton.vue'
 import api from '../api'
+import { formatDateTime } from '../utils'
+import {
+  clearAuthState,
+  getDisplayName,
+  getRole,
+  getTheme,
+  setDisplayName,
+  setTheme
+} from '../utils/authStorage'
 
 const route = useRoute()
 const router = useRouter()
 const collapsed = ref(false)
-const displayName = ref(localStorage.getItem('displayName') || '')
+const displayName = ref(getDisplayName())
 const showProfile = ref(false)
 const profileForm = ref({
   username: '',
@@ -111,16 +120,17 @@ const profileForm = ref({
   passwordConfirm: '',
   lastLoginAt: ''
 })
-const theme = ref(localStorage.getItem('theme') || '')
+const theme = ref(getTheme())
 const themeList = ['', 'mist', 'ocean', 'sand', 'dusk']
 
 const roleLabel = computed(() => {
-  const role = localStorage.getItem('role')
+  const role = getRole()
   if (role === 'ADMIN') return '管理员'
   if (role === 'PARENT') return '家长'
   if (role === 'CHILD') return '孩子'
   return '访客'
 })
+
 const breadcrumbItems = computed(() => {
   const matched = route.matched.filter(item => item.meta?.title)
   if (!matched.length) return [{ title: '控制台', path: route.path }]
@@ -140,7 +150,7 @@ const applyTheme = (value) => {
   } else {
     targets.forEach((el) => el.removeAttribute('data-theme'))
   }
-  localStorage.setItem('theme', value)
+  setTheme(value)
 }
 
 const toggleTheme = () => {
@@ -161,10 +171,6 @@ const toggleTheme = () => {
 const handleUserCommand = (command) => {
   if (command === 'profile') {
     openProfile()
-    return
-  }
-  if (command === 'theme') {
-    toggleTheme()
     return
   }
   if (command === 'logout') {
@@ -215,22 +221,17 @@ const saveProfile = async () => {
     password: profileForm.value.password
   })
   displayName.value = profileForm.value.displayName
-  localStorage.setItem('displayName', profileForm.value.displayName)
+  setDisplayName(profileForm.value.displayName)
   ElMessage.success('保存成功')
   closeProfile()
 }
 
 const logout = () => {
-  localStorage.clear()
+  clearAuthState()
   router.push('/login')
 }
 
 onMounted(() => {
   applyTheme(theme.value)
 })
-
-const formatDateTime = (value) => {
-  if (!value) return '-'
-  return value.replace('T', ' ').slice(0, 16)
-}
 </script>

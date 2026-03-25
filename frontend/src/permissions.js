@@ -1,17 +1,12 @@
-﻿export const getPermissions = () => {
-  const raw = localStorage.getItem('permissions')
-  if (!raw) return []
-  try {
-    const list = JSON.parse(raw)
-    return Array.isArray(list) ? list : []
-  } catch (err) {
-    return []
-  }
-}
+import {
+  getPermissions as getStoredPermissions,
+  setPermissions as setStoredPermissions
+} from './utils/authStorage'
+
+export const getPermissions = () => getStoredPermissions()
 
 export const setPermissions = (permissions) => {
-  const list = Array.isArray(permissions) ? permissions : []
-  localStorage.setItem('permissions', JSON.stringify(list))
+  setStoredPermissions(permissions)
 }
 
 export const can = (code) => {

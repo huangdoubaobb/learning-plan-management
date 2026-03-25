@@ -3,16 +3,16 @@ package com.example.learningplan.dto.export;
 import com.alibaba.excel.annotation.ExcelProperty;
 
 public class TasksTrendRow {
-    @ExcelProperty("日期")
+    @ExcelProperty("Date")
     private String date;
 
-    @ExcelProperty("任务数")
+    @ExcelProperty("Total Tasks")
     private Long tasksTotal;
 
-    @ExcelProperty("完成数")
+    @ExcelProperty("Completed Tasks")
     private Long tasksCompleted;
 
-    @ExcelProperty("完成率")
+    @ExcelProperty("Completion Rate")
     private String completionRate;
 
     public TasksTrendRow() {}

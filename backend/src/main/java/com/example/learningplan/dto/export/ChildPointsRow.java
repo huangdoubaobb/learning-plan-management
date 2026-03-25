@@ -3,19 +3,19 @@ package com.example.learningplan.dto.export;
 import com.alibaba.excel.annotation.ExcelProperty;
 
 public class ChildPointsRow {
-    @ExcelProperty("时间")
+    @ExcelProperty("Time")
     private String time;
 
-    @ExcelProperty("类型")
+    @ExcelProperty("Type")
     private String type;
 
-    @ExcelProperty("积分")
+    @ExcelProperty("Points")
     private Integer points;
 
-    @ExcelProperty("关联类型")
+    @ExcelProperty("Reference Type")
     private String refType;
 
-    @ExcelProperty("备注")
+    @ExcelProperty("Note")
     private String note;
 
     public ChildPointsRow() {}

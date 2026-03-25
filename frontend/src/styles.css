@@ -130,6 +130,30 @@ a {
   padding: 28px 24px 36px;
 }
 
+.layout-main .container,
+.layout-main .task-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.layout-main .container > .header,
+.layout-main .task-page > .header,
+.layout-main .container > .vea-stat-grid,
+.layout-main .task-page > .vea-stat-grid,
+.layout-main .container > .stats-grid,
+.layout-main .task-page > .stats-grid,
+.layout-main .container > .dashboard-grid,
+.layout-main .task-page > .dashboard-grid,
+.layout-main .container > .card,
+.layout-main .task-page > .card {
+  margin-bottom: 0;
+}
+
 .card {
   background: var(--card);
   border: 1px solid var(--border);
@@ -1438,6 +1462,45 @@ body[data-theme="dusk"],
   margin-bottom: 18px;
 }
 
+.chart-summary-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+  margin-bottom: 10px;
+}
+
+.chart-summary-pill {
+  min-width: 120px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: linear-gradient(135deg, rgba(248, 250, 252, 0.92), rgba(241, 245, 249, 0.78));
+}
+
+.chart-summary-pill span {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.chart-summary-pill strong {
+  font-size: 15px;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.chart-summary-pill .is-positive,
+.chart-summary-pill strong.is-positive {
+  color: #15803d;
+}
+
+.chart-summary-pill .is-negative,
+.chart-summary-pill strong.is-negative {
+  color: #c2410c;
+}
+
 .pie-wrap {
   display: flex;
   align-items: center;
@@ -1628,7 +1691,9 @@ body[data-theme="dusk"],
 }
 
 
-.vea-filter-bar {
+.vea-filter-bar,
+.permission-filter-bar,
+.reward-filter-bar {
   padding: 10px 12px;
   background: #f5f7fa;
   border: 1px solid #ebeef5;
@@ -1642,18 +1707,51 @@ body[data-theme="dusk"],
 /* unify filter-bar inputs */
 .vea-filter-bar .el-input__wrapper,
 .vea-filter-bar .el-select .el-input__wrapper,
-.vea-filter-bar .el-date-editor,
-.vea-filter-bar .el-date-editor .el-input__wrapper {
+.vea-filter-bar .el-select__wrapper,
+.vea-filter-bar .el-date-editor .el-input__wrapper,
+.permission-filter-bar .el-input__wrapper,
+.permission-filter-bar .el-select .el-input__wrapper,
+.permission-filter-bar .el-select__wrapper,
+.permission-filter-bar .el-date-editor .el-input__wrapper,
+.reward-filter-bar .el-input__wrapper,
+.reward-filter-bar .el-select .el-input__wrapper,
+.reward-filter-bar .el-select__wrapper,
+.reward-filter-bar .el-date-editor .el-input__wrapper {
   height: 36px !important;
   box-shadow: none !important;
   border: 1px solid #c0c4cc !important;
   padding: 0 10px !important;
   align-items: center !important;
+  box-sizing: border-box !important;
+}
+
+.vea-filter-bar .el-input,
+.vea-filter-bar .el-select,
+.vea-filter-bar .el-date-editor.el-input,
+.permission-filter-bar .el-input,
+.permission-filter-bar .el-select,
+.permission-filter-bar .el-date-editor.el-input,
+.reward-filter-bar .el-input,
+.reward-filter-bar .el-select,
+.reward-filter-bar .el-date-editor.el-input {
+  height: 36px !important;
 }
 
 .vea-filter-bar .el-input__inner,
 .vea-filter-bar .el-date-editor .el-input__inner,
-.vea-filter-bar .el-select .el-input__inner {
+.vea-filter-bar .el-select .el-input__inner,
+.vea-filter-bar .el-select__selected-item,
+.vea-filter-bar .el-select__placeholder,
+.permission-filter-bar .el-input__inner,
+.permission-filter-bar .el-date-editor .el-input__inner,
+.permission-filter-bar .el-select .el-input__inner,
+.permission-filter-bar .el-select__selected-item,
+.permission-filter-bar .el-select__placeholder,
+.reward-filter-bar .el-input__inner,
+.reward-filter-bar .el-date-editor .el-input__inner,
+.reward-filter-bar .el-select .el-input__inner,
+.reward-filter-bar .el-select__selected-item,
+.reward-filter-bar .el-select__placeholder {
   height: 34px !important;
   line-height: 34px !important;
   border: none !important;
@@ -1661,15 +1759,72 @@ body[data-theme="dusk"],
   background: transparent !important;
 }
 
+.vea-filter-bar .el-input__prefix,
+.vea-filter-bar .el-input__suffix,
+.vea-filter-bar .el-select .el-input__prefix,
+.vea-filter-bar .el-select .el-input__suffix,
+.vea-filter-bar .el-select__caret,
+.permission-filter-bar .el-input__prefix,
+.permission-filter-bar .el-input__suffix,
+.permission-filter-bar .el-select .el-input__prefix,
+.permission-filter-bar .el-select .el-input__suffix,
+.permission-filter-bar .el-select__caret,
+.reward-filter-bar .el-input__prefix,
+.reward-filter-bar .el-input__suffix,
+.reward-filter-bar .el-select .el-input__prefix,
+.reward-filter-bar .el-select .el-input__suffix,
+.reward-filter-bar .el-select__caret {
+  height: 34px !important;
+  line-height: 34px !important;
+}
+
+.vea-filter-bar .el-date-editor,
+.permission-filter-bar .el-date-editor,
+.reward-filter-bar .el-date-editor {
+  display: inline-flex !important;
+  align-items: center !important;
+  min-height: 36px !important;
+  height: auto !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.vea-filter-bar .el-date-editor .el-input__prefix,
+.vea-filter-bar .el-date-editor .el-input__suffix,
+.permission-filter-bar .el-date-editor .el-input__prefix,
+.permission-filter-bar .el-date-editor .el-input__suffix,
+.reward-filter-bar .el-date-editor .el-input__prefix,
+.reward-filter-bar .el-date-editor .el-input__suffix {
+  height: 34px !important;
+  line-height: 34px !important;
+}
+
 .vea-filter-bar .el-input--small .el-input__wrapper,
 .vea-filter-bar .el-select--small .el-input__wrapper,
-.vea-filter-bar .el-date-editor.el-input--small .el-input__wrapper {
+.vea-filter-bar .el-select--small .el-select__wrapper,
+.vea-filter-bar .el-date-editor.el-input--small .el-input__wrapper,
+.permission-filter-bar .el-input--small .el-input__wrapper,
+.permission-filter-bar .el-select--small .el-input__wrapper,
+.permission-filter-bar .el-select--small .el-select__wrapper,
+.permission-filter-bar .el-date-editor.el-input--small .el-input__wrapper,
+.reward-filter-bar .el-input--small .el-input__wrapper,
+.reward-filter-bar .el-select--small .el-input__wrapper,
+.reward-filter-bar .el-select--small .el-select__wrapper,
+.reward-filter-bar .el-date-editor.el-input--small .el-input__wrapper {
   height: 36px !important;
 }
 
 .vea-filter-bar .el-input--small .el-input__inner,
 .vea-filter-bar .el-select--small .el-input__inner,
-.vea-filter-bar .el-date-editor.el-input--small .el-input__inner {
+.vea-filter-bar .el-date-editor.el-input--small .el-input__inner,
+.permission-filter-bar .el-input--small .el-input__inner,
+.permission-filter-bar .el-select--small .el-input__inner,
+.permission-filter-bar .el-date-editor.el-input--small .el-input__inner,
+.reward-filter-bar .el-input--small .el-input__inner,
+.reward-filter-bar .el-select--small .el-input__inner,
+.reward-filter-bar .el-date-editor.el-input--small .el-input__inner {
   height: 34px !important;
   line-height: 34px !important;
 }

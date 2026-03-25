@@ -64,51 +64,51 @@
             </div>
           </div>
           <div class="permission-filter-actions">
-          <VeaButton type="primary" :icon="Search" @click="applyFilters">查询</VeaButton>
-          <VeaButton @click="resetFilters">重置</VeaButton>
-          <VeaButton type="primary" :icon="Plus" @click="openCreate">新增</VeaButton>
+            <VeaButton type="primary" :icon="Search" @click="applyFilters">查询</VeaButton>
+            <VeaButton @click="resetFilters">重置</VeaButton>
+            <VeaButton type="primary" :icon="Plus" @click="openCreate">新增</VeaButton>
+          </div>
         </div>
-      </div>
-      <div class="table-wrap">
-        <table class="table compact vea-table">
-          <thead>
-            <tr>
-              <th style="width: 38%;">菜单</th>
-              <th style="width: 22%;">功能</th>
-              <th>权限编码</th>
-              <th style="width: 140px;">操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="row in pagedRows" :key="row.id">
-              <td>{{ row.menu }}</td>
-              <td>{{ row.action }}</td>
-              <td class="mono">{{ row.code }}</td>
-              <td>
-                <div class="permission-actions">
-                  <VeaButton type="primary" plain :icon="Edit" @click="openEdit(row)">编辑</VeaButton>
-                  <VeaButton type="danger" plain :icon="Delete" @click="removeMenu(row)">删除</VeaButton>
-                </div>
-              </td>
-            </tr>
-            <tr v-if="!pagedRows.length">
-              <td colspan="4" class="notice">暂无权限</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="permission-footer">
-        <VeaButton :icon="Refresh" @click="loadAll">刷新</VeaButton>
-        <el-pagination
-          small
-          background
-          layout="prev, pager, next"
+        <div class="table-wrap">
+          <table class="table compact vea-table">
+            <thead>
+              <tr>
+                <th style="width: 38%;">菜单</th>
+                <th style="width: 22%;">功能</th>
+                <th>权限编码</th>
+                <th style="width: 140px;">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="row in pagedRows" :key="row.id">
+                <td>{{ row.menu }}</td>
+                <td>{{ row.action }}</td>
+                <td class="mono">{{ row.code }}</td>
+                <td>
+                  <div class="permission-actions">
+                    <VeaButton type="primary" plain :icon="Edit" @click="openEdit(row)">编辑</VeaButton>
+                    <VeaButton type="danger" plain :icon="Delete" @click="removeMenu(row)">删除</VeaButton>
+                  </div>
+                </td>
+              </tr>
+              <tr v-if="!pagedRows.length">
+                <td colspan="4" class="notice">暂无权限</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="permission-footer">
+          <VeaButton :icon="Refresh" @click="loadAll">刷新</VeaButton>
+          <el-pagination
+            small
+            background
+            layout="prev, pager, next"
             :total="filteredTableRows.length"
             :page-size="pageSize"
             :current-page="currentPage"
             @current-change="currentPage = $event"
           />
-          <el-button type="success" size="small" @click="exportPermissions">导出至 Excel</el-button>
+          <VeaButton type="success" :icon="Check" @click="exportPermissions">导出</VeaButton>
         </div>
       </div>
     </div>
@@ -176,6 +176,7 @@ import { Lock, Menu, Search, Refresh, Plus, Edit, Delete, Check } from '@element
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '../api'
 import VeaButton from '../components/VeaButton.vue'
+import { downloadCsv } from '../utils'
 
 const menus = ref([])
 const filters = ref({
@@ -212,16 +213,6 @@ const menuRoots = computed(() => menus.value.filter(menu => (menu.parentId ?? 0)
 const menuCategoryOptions = computed(() => {
   const roots = menuRoots.value.filter(menu => menu.type === 1 || menu.type === 2)
   return roots.length ? roots : menuRoots.value
-})
-
-const filteredPermissions = computed(() => {
-  if (!filters.value.keyword) return permissionItems.value
-  const k = filters.value.keyword.toLowerCase()
-  return permissionItems.value.filter(menu => {
-    const name = String(menu.name || '').toLowerCase()
-    const code = String(menu.permission || '').toLowerCase()
-    return name.includes(k) || code.includes(k)
-  })
 })
 
 const actionLabelMap = {
@@ -276,7 +267,7 @@ const onTreeClick = (data) => {
 }
 
 const childMenus = computed(() => {
-  if (!selectedMenuId.value) return []
+  if (!selectedMenuId.value) return permissionItems.value
   return menus.value.filter(menu => (menu.parentId ?? 0) === selectedMenuId.value)
 })
 
@@ -335,20 +326,19 @@ const applyFilters = () => {
 }
 
 const exportPermissions = async () => {
-  const header = '\u83dc\u5355,\u529f\u80fd,\u6743\u9650\u7f16\u7801'
+  const header = '菜单,功能,权限编码'
   const rows = filteredTableRows.value.map(row => `${row.menu},${row.action},${row.code}`)
-  const csv = [header, ...rows].join('\n')
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-  const link = document.createElement('a')
-  link.href = URL.createObjectURL(blob)
-  link.download = `permissions-${new Date().toISOString().slice(0, 10)}.csv`
-  link.click()
-  URL.revokeObjectURL(link.href)
+  downloadCsv([header, ...rows], `permissions-${new Date().toISOString().slice(0, 10)}.csv`)
+  ElMessage.success('导出成功')
 }
 
 watch(selectedMenuId, () => {
   currentPage.value = 1
   selectedPermissionId.value = ''
+})
+
+watch(filteredTableRows, () => {
+  currentPage.value = 1
 })
 
 const parentOptions = computed(() => {
