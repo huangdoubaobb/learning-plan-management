@@ -251,6 +251,7 @@ import {
 import { VueUiXy } from 'vue-data-ui'
 import api from '../api'
 import { makeBarSeries, makeXyConfig } from '../composables/useDataUiCharts'
+import { normalizeParentStats } from '../composables/useParentStats'
 import { getRole } from '../utils/authStorage'
 
 const role = ref(getRole())
@@ -429,7 +430,7 @@ const loadParent = async () => {
     api.get('/parent/stats?days=30')
   ])
   children.value = childrenRes.data
-  parentStats.value = statsRes.data
+  parentStats.value = normalizeParentStats(statsRes.data)
   if (!selectedChildId.value && children.value.length) {
     selectedChildId.value = String(children.value[0].id)
   }

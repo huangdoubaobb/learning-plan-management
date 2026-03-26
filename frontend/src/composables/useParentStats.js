@@ -1,6 +1,15 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import api from '../api'
 
+export const normalizeParentStats = (data = {}) => ({
+  children: data.childrenTotal || 0,
+  tasks: data.tasksTotal || 0,
+  rewards: data.rewardsTotal || 0,
+  pending: data.pendingRedemptions || 0,
+  tasksInRange: data.tasksInRange || 0,
+  redemptionsInRange: data.redemptionsInRange || 0
+})
+
 export const useParentStats = () => {
   const stats = ref({
     children: 0,
@@ -14,14 +23,7 @@ export const useParentStats = () => {
 
   const load = async () => {
     const { data } = await api.get(`/parent/stats?days=${days.value}`)
-    stats.value = {
-      children: data.childrenTotal || 0,
-      tasks: data.tasksTotal || 0,
-      rewards: data.rewardsTotal || 0,
-      pending: data.pendingRedemptions || 0,
-      tasksInRange: data.tasksInRange || 0,
-      redemptionsInRange: data.redemptionsInRange || 0
-    }
+    stats.value = normalizeParentStats(data)
   }
 
   const notifyUpdate = () => {
